@@ -42,9 +42,10 @@ async def start_analysis(
     
     # Update status to processing
     portfolio.status = PortfolioStatus.PROCESSING
-    await db.flush()
+    await db.commit()  # Use commit() instead of flush() to ensure persistence
     
     # Queue analysis in background
+    # Pass ONLY portfolio_id, ai_service will handle its own session
     background_tasks.add_task(analyze_portfolio, str(portfolio.id))
     
     return AnalysisStatusResponse(
