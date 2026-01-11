@@ -117,9 +117,10 @@ function RecruiterDashboard() {
             <header className="recruiter-header">
                 <div className="container">
                     <div className="header-content">
-                        <Link to="/" className="logo">
-                            <span className="logo-icon">◇</span>
-                            <span className="logo-text">PortLens</span>
+                        <Link to="/" className="recruiter-logo">
+                            <span className="recruiter-logo-icon">❖</span>
+                            <span className="recruiter-logo-text">PortLens</span>
+                            <span className="recruiter-logo-badge">RECRUITER</span>
                         </Link>
                         <div className="header-actions">
                             <span className="user-badge">Recruiter</span>
