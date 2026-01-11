@@ -100,7 +100,7 @@ async def analyze_portfolio(portfolio_id: str):
                     print(f"Attempting Gemini analysis for {portfolio_id}...")
                     analysis_result = await asyncio.wait_for(
                         analyze_with_gemini(images, portfolio.source_url),
-                        timeout=15.0  # 15s timeout
+                        timeout=5.0  # 5s strict timeout as requested
                     )
                 except asyncio.TimeoutError:
                     print(f"Gemini analysis timed out for {portfolio_id}. Falling back to mock.")
