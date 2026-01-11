@@ -36,6 +36,21 @@ function Dashboard() {
         }
     }, [isAuthenticated, isLoading, portfolios.length])
 
+    // Polling for updates if any portfolio is processing
+    useEffect(() => {
+        const hasProcessing = portfolios.some(p => p.status === 'processing' || p.status === 'pending')
+        let interval
+
+        if (hasProcessing) {
+            interval = setInterval(() => {
+                fetchPortfolios()
+            }, 2000)
+        }
+
+        return () => clearInterval(interval)
+    }, [portfolios, fetchPortfolios])
+
+
     const handleDrag = useCallback((e) => {
         e.preventDefault()
         e.stopPropagation()
@@ -138,6 +153,9 @@ function Dashboard() {
                             <span className="logo-text">PortLens</span>
                         </Link>
                         <div className="header-actions">
+                            <Link to="/recruiter-dashboard" className="btn btn-ghost btn-sm" style={{ marginRight: '0.5rem', color: '#00f2ff' }}>
+                                👔 Recruiter Mode
+                            </Link>
                             <span className="user-name">{user?.name}</span>
                             <button onClick={logout} className="btn btn-ghost">
                                 Logout
