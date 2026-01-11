@@ -4,7 +4,6 @@
 
 PortLens is a sophisticated SaaS platform that bridges the gap between creative talent and recruitment. It uses an **Elite Design Analysis Engine** to critique portfolios with the rigor of a Senior Art Director, checking for Gestalt principles, WCAG accessibility, and Golden Ratio harmony in under 5 seconds.
 
-![PortLens Dashboard](https://via.placeholder.com/1200x600?text=PortLens+Dashboard+Preview)
 
 ## Key Features
 
