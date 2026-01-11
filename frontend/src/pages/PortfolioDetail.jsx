@@ -76,7 +76,7 @@ function PortfolioDetail() {
             <header className="detail-header">
                 <div className="container">
                     <div className="header-content">
-                        <Link to="/dashboard" className="back-link">
+                        <Link to={location.pathname.includes('recruiter') || (useAuthStore.getState().user?.role === 'recruiter') ? "/recruiter-dashboard" : "/dashboard"} className="back-link">
                             ← Back to Dashboard
                         </Link>
                         <Link to="/" className="logo">
@@ -156,8 +156,8 @@ function PortfolioDetail() {
                                 <div className={`score-value ${getScoreClass(analysis.visual_score || 0)}`}>
                                     {analysis.visual_score || '--'}
                                 </div>
-                                <p>
-                                    Layout, typography, color usage, spacing, and visual hierarchy
+                                <p className="feedback-text">
+                                    {analysis.detailed_feedback?.visual || 'Layout, typography, color usage, spacing, and visual hierarchy.'}
                                 </p>
                             </div>
 
@@ -169,8 +169,8 @@ function PortfolioDetail() {
                                 <div className={`score-value ${getScoreClass(analysis.ux_score || 0)}`}>
                                     {analysis.ux_score || '--'}
                                 </div>
-                                <p>
-                                    Research depth, problem solving, iteration process, user focus
+                                <p className="feedback-text">
+                                    {analysis.detailed_feedback?.ux || 'Research depth, problem solving, iteration process, user focus.'}
                                 </p>
                             </div>
 
@@ -182,8 +182,8 @@ function PortfolioDetail() {
                                 <div className={`score-value ${getScoreClass(analysis.communication_score || 0)}`}>
                                     {analysis.communication_score || '--'}
                                 </div>
-                                <p>
-                                    Clarity of writing, storytelling, case study structure
+                                <p className="feedback-text">
+                                    {analysis.detailed_feedback?.communication || 'Clarity of writing, storytelling, case study structure.'}
                                 </p>
                             </div>
                         </div>
