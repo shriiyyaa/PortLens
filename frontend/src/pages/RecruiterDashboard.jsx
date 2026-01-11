@@ -28,6 +28,13 @@ function RecruiterDashboard() {
         }
     }, [isAuthenticated, fetchPortfolios])
 
+    // Auto-show batch modal for new recruiters with no portfolios
+    useEffect(() => {
+        if (isAuthenticated && !isLoading && portfolios.length === 0) {
+            setShowBatchModal(true)
+        }
+    }, [isAuthenticated, isLoading, portfolios.length])
+
     // Parse CSV file
     const handleCsvUpload = (e) => {
         const file = e.target.files[0]

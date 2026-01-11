@@ -29,6 +29,13 @@ function Dashboard() {
         }
     }, [isAuthenticated, fetchPortfolios])
 
+    // Auto-show upload modal for new users with no portfolios
+    useEffect(() => {
+        if (isAuthenticated && !isLoading && portfolios.length === 0) {
+            setShowUploadModal(true)
+        }
+    }, [isAuthenticated, isLoading, portfolios.length])
+
     const handleDrag = useCallback((e) => {
         e.preventDefault()
         e.stopPropagation()
