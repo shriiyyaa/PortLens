@@ -43,10 +43,47 @@
     color: var(--color-text-primary);
 }
 
-.logo-icon {
-    font-size: var(--text-2xl);
-    color: var(--color-neon);
-    text-shadow: var(--glow-md);
+.logo-icon-img {
+    height: 32px;
+    width: auto;
+    filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.6));
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.6));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 15px rgba(255, 77, 77, 0.9));
+    }
+}
+
+.portfolio-status-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.btn-xs {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    height: auto;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.btn-outline:hover {
+    border-color: var(--color-text-primary);
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .header-actions {

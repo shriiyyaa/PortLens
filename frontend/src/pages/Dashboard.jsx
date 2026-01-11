@@ -99,6 +99,14 @@ function Dashboard() {
         }
     }
 
+    const handleRetry = async (id) => {
+        try {
+            await startAnalysis(id)
+        } catch (err) {
+            console.error('Retry failed:', err)
+        }
+    }
+
     const getStatusBadge = (status) => {
         const statusMap = {
             pending: { label: 'Pending', class: 'status-pending' },
@@ -126,7 +134,7 @@ function Dashboard() {
                 <div className="container">
                     <div className="header-content">
                         <Link to="/" className="logo">
-                            <span className="logo-icon">◇</span>
+                            <img src="/vite.svg" alt="Logo" className="logo-icon-img" />
                             <span className="logo-text">PortLens</span>
                         </Link>
                         <div className="header-actions">
@@ -182,7 +190,18 @@ function Dashboard() {
                                             <h3>{portfolio.title || 'Untitled Portfolio'}</h3>
                                             <p className="portfolio-source">{portfolio.source_type}</p>
                                         </div>
-                                        {getStatusBadge(portfolio.status)}
+                                        <div className="portfolio-status-actions">
+                                            {getStatusBadge(portfolio.status)}
+                                            {portfolio.status === 'failed' && (
+                                                <button
+                                                    onClick={() => handleRetry(portfolio.id)}
+                                                    className="btn btn-xs btn-outline"
+                                                    title="Retry Analysis"
+                                                >
+                                                    Retry
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {portfolio.status === 'completed' && portfolio.analysis && (

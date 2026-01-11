@@ -12,6 +12,11 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
     await init_db()
+    
+    # Reset any stuck portfolios
+    from app.services.ai_service import reset_stuck_portfolios
+    await reset_stuck_portfolios()
+    
     yield
     # Shutdown
     pass

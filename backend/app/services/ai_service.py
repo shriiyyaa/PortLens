@@ -347,3 +347,31 @@ def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_url: s
         "ai_generated": not GEMINI_AVAILABLE,
         "model_used": "gemini-1.5-flash" if GEMINI_AVAILABLE else "PortLens-Core-v1"
     }
+
+
+async def reset_stuck_portfolios():
+    """
+    Reset portfolios stuck in PROCESSING state to FAILED on startup.
+    This handles cases where the server was restarted during analysis.
+    """
+    from app.db.database import engine
+    from app.models.models import Portfolio, PortfolioStatus
+    
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    
+    async with async_session() as db:
+        try:
+            # Find all processing portfolios
+            result = await db.execute(
+                select(Portfolio).where(Portfolio.status == PortfolioStatus.PROCESSING)
+            )
+            stuck_portfolios = result.scalars().all()
+            
+            if stuck_portfolios:
+                print(f"Found {len(stuck_portfolios)} stuck portfolios. Resetting to FAILED.")
+                for portfolio in stuck_portfolios:
+                    portfolio.status = PortfolioStatus.FAILED
+                
+                await db.commit()
+        except Exception as e:
+            print(f"Error resetting stuck portfolios: {e}")
