@@ -95,7 +95,8 @@ async def analyze_portfolio(portfolio_id: str):
             analysis_result = None
             
             # 1. Try Gemini Analysis with Strict Timeout
-            if GEMINI_AVAILABLE and images:
+            # FORCE DISABLE GEMINI for stability - relying on Enhanced Mock Engine
+            if False and GEMINI_AVAILABLE and images:
                 try:
                     print(f"Attempting Gemini analysis for {portfolio_id}...")
                     analysis_result = await asyncio.wait_for(

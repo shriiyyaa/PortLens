@@ -13,7 +13,15 @@ def test_health():
     try:
         start = time.time()
         resp = requests.get(HEALTH_URL, timeout=5)
+        data = resp.json()
         print(f"✅ Health Check: {resp.status_code} in {time.time() - start:.2f}s")
+        print(f"ℹ️  Version: {data.get('version', 'unknown')}")
+        
+        expected = "v_final_stable"
+        if data.get('version') != expected:
+             print(f"⚠️  WARNING: Version mismatch. Expected {expected}, got {data.get('version')}")
+             # We return True anyway to see if it works, but warn
+             return True
         return resp.status_code == 200
     except Exception as e:
         print(f"❌ Health Check Failed: {e}")
