@@ -227,93 +227,93 @@ function Dashboard() {
                 </div>
             </main>
 
-            {/* Upload Modal */}
+            {/* Upload Modal - Unified Input */}
             {showUploadModal && (
                 <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-                    <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>Upload Portfolio</h2>
-                            <button
-                                onClick={() => setShowUploadModal(false)}
-                                className="modal-close"
-                            >
-                                ✕
-                            </button>
-                        </div>
+                    <div className="upload-modal" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={() => setShowUploadModal(false)}
+                            className="modal-close-btn"
+                        >
+                            ✕
+                        </button>
 
-                        <div className="upload-tabs">
-                            <button
-                                className={`tab ${uploadType === 'file' ? 'active' : ''}`}
-                                onClick={() => setUploadType('file')}
-                            >
-                                Upload Files
-                            </button>
-                            <button
-                                className={`tab ${uploadType === 'url' ? 'active' : ''}`}
-                                onClick={() => setUploadType('url')}
-                            >
-                                Submit URL
-                            </button>
-                        </div>
+                        <h2 className="upload-title">Add Portfolio</h2>
+                        <p className="upload-subtitle">Paste a URL or upload files for AI analysis</p>
 
-                        {uploadType === 'file' ? (
-                            <div
-                                className={`drop-zone ${dragActive ? 'active' : ''}`}
-                                onDragEnter={handleDrag}
-                                onDragLeave={handleDrag}
-                                onDragOver={handleDrag}
-                                onDrop={handleDrop}
-                            >
+                        {/* Unified Input Bar */}
+                        <form onSubmit={handleUrlSubmit} className="unified-input-form">
+                            <div className="unified-input-bar">
+                                <div className="input-icon">🔗</div>
+                                <input
+                                    type="url"
+                                    className="unified-url-input"
+                                    placeholder="Paste portfolio URL (Behance, Dribbble, etc.)"
+                                    value={urlInput}
+                                    onChange={(e) => setUrlInput(e.target.value)}
+                                />
+
+                                {/* File Attachment Button */}
+                                <label htmlFor="file-input-unified" className="file-attach-btn" title="Upload files">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+                                    </svg>
+                                </label>
                                 <input
                                     type="file"
-                                    id="file-input"
+                                    id="file-input-unified"
                                     multiple
-                                    accept="image/*,.pdf"
+                                    accept="*/*"
                                     onChange={handleFileSelect}
                                     hidden
                                 />
-                                <label htmlFor="file-input" className="drop-zone-content">
-                                    <div className="drop-icon">📤</div>
-                                    <p>Drag & drop files here, or click to browse</p>
-                                    <span className="drop-hint">PNG, JPG, PDF up to 50MB</span>
-                                </label>
-                                {uploadProgress > 0 && (
-                                    <div className="upload-progress">
-                                        <div
-                                            className="progress-bar"
-                                            style={{ width: `${uploadProgress}%` }}
-                                        ></div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <form onSubmit={handleUrlSubmit} className="url-form">
-                                <div className="form-group">
-                                    <label className="label">Portfolio URL</label>
-                                    <input
-                                        type="url"
-                                        className="input"
-                                        placeholder="https://behance.net/yourprofile"
-                                        value={urlInput}
-                                        onChange={(e) => setUrlInput(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="label">Title (optional)</label>
-                                    <input
-                                        type="text"
-                                        className="input"
-                                        placeholder="My Portfolio"
-                                        value={titleInput}
-                                        onChange={(e) => setTitleInput(e.target.value)}
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-primary btn-lg">
-                                    Submit for Analysis
+
+                                {/* Submit Button */}
+                                <button
+                                    type="submit"
+                                    className="unified-submit-btn"
+                                    disabled={!urlInput.trim()}
+                                    title="Submit for analysis"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7" />
+                                    </svg>
                                 </button>
-                            </form>
-                        )}
+                            </div>
+
+                            {/* Optional Title */}
+                            <input
+                                type="text"
+                                className="title-input"
+                                placeholder="Title (optional)"
+                                value={titleInput}
+                                onChange={(e) => setTitleInput(e.target.value)}
+                            />
+                        </form>
+
+                        {/* Drop Zone for Files */}
+                        <div
+                            className={`mini-drop-zone ${dragActive ? 'active' : ''}`}
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
+                        >
+                            <span className="drop-icon">📁</span>
+                            <span>or drag & drop files here</span>
+                            {uploadProgress > 0 && (
+                                <div className="upload-progress">
+                                    <div
+                                        className="progress-bar"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    ></div>
+                                </div>
+                            )}
+                        </div>
+
+                        <p className="upload-hint">
+                            Supports: Behance, Dribbble, personal sites, PDF, PNG, JPG, and more
+                        </p>
                     </div>
                 </div>
             )}
