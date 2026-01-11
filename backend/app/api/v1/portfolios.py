@@ -116,7 +116,15 @@ async def upload_portfolio(
         )
         db.add(portfolio_file)
     
-    await db.refresh(portfolio)
+    await db.commit()
+    
+    # Re-fetch with analysis relationship to avoid lazy loading issues
+    result = await db.execute(
+        select(Portfolio)
+        .where(Portfolio.id == portfolio.id)
+        .options(selectinload(Portfolio.analysis))
+    )
+    portfolio = result.scalar_one()
     return PortfolioResponse.model_validate(portfolio)
 
 
@@ -140,9 +148,15 @@ async def submit_portfolio_url(
         status=PortfolioStatus.PENDING,
     )
     db.add(portfolio)
-    await db.flush()
-    await db.refresh(portfolio)
+    await db.commit()
     
+    # Re-fetch with analysis relationship to avoid lazy loading issues in async context
+    result = await db.execute(
+        select(Portfolio)
+        .where(Portfolio.id == portfolio.id)
+        .options(selectinload(Portfolio.analysis))
+    )
+    portfolio = result.scalar_one()
     return PortfolioResponse.model_validate(portfolio)
 
 
