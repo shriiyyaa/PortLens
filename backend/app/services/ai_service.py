@@ -354,34 +354,74 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
 
     # Helper to generate detailed paragraph
     def generate_paragraph(score, category, keywords=[]):
-        phrases_high = [
-            "demonstrates sophisticated understanding of modern interface paradigms.",
-            "effectively utilizes negative space to create breathing room.",
-            "maintains strong consistency in component hierarchy.",
-            "exhibits professional-grade execution typical of senior roles.",
-            "showcases mastery of the grid system and layout rhythm."
+        # Elite Visual Vocabulary
+        phrases_high_visual = [
+            "masterfully applies the Golden Ratio to establish a harmonious grid structure.",
+            "demonstrates exceptional command of typographic rhythm and vertical cadence.",
+            "utilizes Gestalt principles (Proximity, Common Region) to create intuitive grouping.",
+            "exhibits a refined color methodology that balances brand equity with WCAG 2.1 accessibility.",
+            "employs sophisticated use of negative space to drive cognitive focus.",
+            "showcases a pixel-perfect execution reminiscent of top-tier agency work."
         ]
-        phrases_mid = [
-            "shows solid foundation but could benefit from more refinement.",
-            "establishes a clear structure though some details feel rushed.",
-            "communicates the core value proposition effectively.",
-            "uses a consistent color palette that aligns with industry standards.",
-            "handles information architecture reasonably well."
-        ]
-        phrases_low = [
-            "could benefit from a more rigorous approach to typography.",
-            "presents some accessibility challenges in contrast and sizing.",
-            "needs more focus on the user journey and navigation flow.",
-            "should prioritize content hierarchy to guide the user's eye.",
-            "would improve with better mobile responsiveness considerations."
+        phrases_mid_visual = [
+            "maintains a solid visual hierarchy but could push for more dynamic tension.",
+            "adheres to fundamental grid systems, though the gutters feel slightly constrained.",
+            "uses a consistent design language that aligns with current material design standards.",
+            "achieves a clean aesthetic, though the typographic scale lacks some contrast.",
+            "presents a polished interface that communicates reliability."
         ]
         
-        pool = phrases_high if score >= 80 else phrases_mid if score >= 70 else phrases_low
-        selected = random.sample(pool, 2)
+        # Elite UX Vocabulary
+        phrases_high_ux = [
+            "articulates a user journey map that perfectly addresses pain points and friction.",
+            "demonstrates rigorous usability testing methodology with clear iteration cycles.",
+            "optimizes interaction cost (Interaction Design) to reduce cognitive load effectively.",
+            "showcases deep empathy for the persona through comprehensive research artifacts.",
+            "seamlessly integrates micro-interactions that enhance the perceived performance."
+        ]
+        phrases_mid_ux = [
+            "shows a clear understanding of user flows, though the edge cases need attention.",
+            "presents valid wireframes, but high-fidelity prototyping could explore more states.",
+            "addresses the primary use case well, but accessibility (screen reader) is unclear.",
+            "follows standard heuristic principles (Nielsen's 10) for interface design."
+        ]
+        
+        # Elite Communication/Storytelling Vocabulary
+        phrases_high_comm = [
+            "structures the case study with a compelling STAR (Situation, Task, Action, Result) narrative.",
+            "effectively quantifies design impact using specific KPIs (Conversion, Retention).",
+            "balances high-level strategy with granular design decisions seamlessly.",
+            "presents 'Concept to Launch' evolution with remarkable clarity and honesty.",
+            "demonstrates strategic thinking by linking design outcomes to business goals."
+        ]
+        phrases_mid_comm = [
+            "clearly outlines the problem statement, but the 'Why' behind decisions is brief.",
+            "presents the final solution well, but the 'messey middle' process is glossed over.",
+            "communicates the design intent, but success metrics are largely qualitative.",
+            "structure follows a logical flow, though the narrative hook could be stronger."
+        ]
+        
+        phrases_low = [
+            "shows potential but requires more rigour in fundamental execution.",
+            "presents ideas clearly, but the visual polish detracts from the solution.",
+            "needs to focus on the 'Why' rather than just the 'What' in case studies.",
+            "would benefit from a stricter adherence to a 4pt/8pt grid system."
+        ]
+        
+        if category == "Visual Design":
+            pool = phrases_high_visual if score >= 80 else phrases_mid_visual if score >= 70 else phrases_low
+        elif category == "User Experience":
+            pool = phrases_high_ux if score >= 80 else phrases_mid_ux if score >= 70 else phrases_low
+        elif category == "Communication & Storytelling":
+            pool = phrases_high_comm if score >= 80 else phrases_mid_comm if score >= 70 else phrases_low
+        else:
+            pool = phrases_low # Fallback
+
+        selected = random.sample(pool, min(2, len(pool)))
         
         base = f"The {category} (Score: {int(score)}) {selected[0]} Additionally, the work {selected[1]}"
         if keywords:
-            base += f" It aligns well with the themes of {keywords[0]} and {keywords[1] if len(keywords)>1 else 'design'}."
+            base += f" It aligns well with the semantic themes of '{keywords[0]}' and '{keywords[1] if len(keywords)>1 else 'digital ecosystem'}'."
         return base
 
     # Strengths
