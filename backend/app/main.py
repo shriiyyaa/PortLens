@@ -15,7 +15,11 @@ async def lifespan(app: FastAPI):
     
     # Reset any stuck portfolios
     from app.services.ai_service import reset_stuck_portfolios
-    await reset_stuck_portfolios()
+    # Run stuck portfolio cleanup in background to ensure fast startup
+    try:
+        asyncio.create_task(reset_stuck_portfolios())
+    except Exception as e:
+        print(f"Failed to trigger startup cleanup: {e}")
     
     yield
     # Shutdown

@@ -254,8 +254,9 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
     """
     import random
     import zlib
-    import httpx
-    from bs4 import BeautifulSoup
+    import urllib.request
+    import re
+    import asyncio
     
     # 1. Deterministic Seeding
     if seed_id:
@@ -264,23 +265,45 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         random.seed(seed_value)
     
     # 2. Try to fetch metadata if URL exists (to make it "smart")
+    # Using standard library to avoid dependency issues on startup/runtime
     page_title = "Portfolio"
     page_description = ""
     
     if source_url:
         try:
-            async with httpx.AsyncClient(timeout=3.0, follow_redirects=True) as client:
-                resp = await client.get(source_url)
-                if resp.status_code == 200:
-                    soup = BeautifulSoup(resp.text, 'html.parser')
-                    if soup.title:
-                        page_title = soup.title.string.strip()
-                    
-                    meta_desc = soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'property': 'og:description'})
-                    if meta_desc and meta_desc.get('content'):
-                        page_description = meta_desc.get('content').strip()
-        except Exception:
-            pass # Fail silently on fetch, proceed with mock logic
+            def fetch_meta_safe():
+                try:
+                    # Simple GET request with urllib
+                    req = urllib.request.Request(
+                        source_url, 
+                        headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+                    )
+                    with urllib.request.urlopen(req, timeout=3.0) as response:
+                        html = response.read().decode('utf-8', errors='ignore')
+                        return html
+                except Exception:
+                    return ""
+
+            # Run in thread to not block event loop
+            html_content = await asyncio.to_thread(fetch_meta_safe)
+            
+            if html_content:
+                # Regex extraction for Title
+                title_match = re.search(r'<title>(.*?)</title>', html_content, re.IGNORECASE | re.DOTALL)
+                if title_match:
+                    page_title = title_match.group(1).strip()
+                
+                # Regex extraction for Description
+                desc_match = re.search(r'<meta[^>]*name=["\']description["\'][^>]*content=["\'](.*?)["\']', html_content, re.IGNORECASE)
+                if not desc_match:
+                     desc_match = re.search(r'<meta[^>]*content=["\'](.*?)["\'][^>]*name=["\']description["\']', html_content, re.IGNORECASE)
+                
+                if desc_match:
+                     page_description = desc_match.group(1).strip()
+
+        except Exception as e:
+            print(f"Metadata fetch warning: {e}")
+            # Fail silently on fetch, proceed with mock logic
     
     # 3. Generate Scores
     # Base quality mostly good (65-85) to be encouraging but realistic
