@@ -1,4 +1,4 @@
-# 👁️ PortLens: The Elite Design Intelligence Platform
+# PortLens: The Elite Design Intelligence Platform
 
 > **"No Competition."** — *AI-Powered Portfolio Analysis for Top-Tier Design Talent & Recruiters.*
 
@@ -6,9 +6,9 @@ PortLens is a sophisticated SaaS platform that bridges the gap between creative 
 
 ![PortLens Dashboard](https://via.placeholder.com/1200x600?text=PortLens+Dashboard+Preview)
 
-## 🚀 Key Features
+## Key Features
 
-### 🎨 For Designers: The "Elite Critique"
+### For Designers: The "Elite Critique"
 - **Instant Analysis**: Get a comprehensive review of your link in < 4 seconds.
 - **Senior-Level Feedback**: Our engine evaluates:
   - **Visuals**: Typographic rhythm, grid usage, negative space, color theory.
@@ -16,14 +16,14 @@ PortLens is a sophisticated SaaS platform that bridges the gap between creative 
   - **Storytelling**: STAR method application, KPI impact.
 - **Growth Roadmap**: Actionable steps to move from "Junior" to "Senior".
 
-### 👔 For Recruiters: The "Enterprise View"
+### For Recruiters: The "Enterprise View"
 - **One-Glance Verdicts**: Instant "Hire", "Strong Hire", or "Pass" badges.
 - **Batch Processing**: Import 100+ links via CSV and rank them automatically.
 - **Skill Breakdown**: Radar charts comparing Visuals vs. UX vs. Communication.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 Built for **Speed** and **Stability**.
 
@@ -37,7 +37,7 @@ Built for **Speed** and **Stability**.
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+
@@ -79,13 +79,13 @@ Built for **Speed** and **Stability**.
 
 ---
 
-## 🧠 The "Elite" Engine
+## The "Elite" Engine
 
 PortLens doesn't just "guess". It uses a deterministic, rule-based heuristic engine enhanced with **Dynamic Keyword Extraction**.
 
 - **Context Aware**: It reads the portfolio's meta-description to understand if the candidate is a "Minimalist UI Designer" or a "Data-Heavy UX Researcher".
 - **Vocabulary**: It speaks the language of design (`"Kerning"`, `"Affordance"`, `"Cognitive Load"`).
 
-## 📄 License
+## License
 
 MIT © [Shriya Nayyar](https://github.com/shriiyyaa)
