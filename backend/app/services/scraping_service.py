@@ -9,7 +9,14 @@ import os
 import uuid
 import asyncio
 from typing import List, Optional
-from playwright.async_api import async_playwright
+
+# Make playwright optional to avoid startup crashes if not installed
+try:
+    from playwright.async_api import async_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    async_playwright = None
 
 async def capture_portfolio_screenshots(url: str, output_dir: str) -> List[str]:
     """
@@ -22,6 +29,10 @@ async def capture_portfolio_screenshots(url: str, output_dir: str) -> List[str]:
     Returns:
         List of paths to captured screenshots
     """
+    if not PLAYWRIGHT_AVAILABLE:
+        print("Playwright not available, skipping screenshot capture")
+        return []
+    
     os.makedirs(output_dir, exist_ok=True)
     screenshot_paths = []
     
