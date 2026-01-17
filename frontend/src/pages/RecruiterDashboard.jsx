@@ -24,7 +24,7 @@ function RecruiterDashboard() {
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetchPortfolios()
+            fetchPortfolios('recruiter')  // Only fetch recruiter context portfolios
         }
     }, [isAuthenticated, fetchPortfolios])
 
@@ -64,15 +64,15 @@ function RecruiterDashboard() {
 
         setIsSubmitting(true)
         try {
-            // Submit each URL
+            // Submit each URL with 'recruiter' context
             for (const url of urls) {
-                const portfolio = await submitUrl(url, batchName || 'Batch Import')
+                const portfolio = await submitUrl(url, batchName || 'Candidate Portfolio', 'recruiter', null)
                 await startAnalysis(portfolio.id)
             }
             setShowBatchModal(false)
             setBatchUrls('')
             setBatchName('')
-            fetchPortfolios() // Refresh list
+            fetchPortfolios('recruiter') // Refresh list with recruiter context
         } catch (err) {
             console.error('Batch submit failed:', err)
         } finally {

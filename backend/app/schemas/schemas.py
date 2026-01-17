@@ -76,6 +76,8 @@ class PortfolioCreate(PortfolioBase):
 class PortfolioURLSubmit(BaseModel):
     url: str
     title: Optional[str] = "Portfolio"
+    submission_context: Optional[str] = "designer"  # 'designer' or 'recruiter'
+    candidate_name: Optional[str] = None  # For recruiter submissions
 
 
 class AnalysisResponse(BaseModel):
@@ -112,6 +114,8 @@ class PortfolioListResponse(BaseModel):
     title: Optional[str] = None
     source_type: SourceType
     status: PortfolioStatus
+    submission_context: Optional[str] = "designer"
+    candidate_name: Optional[str] = None
     created_at: datetime
     analysis: Optional[AnalysisResponse] = None
 

@@ -47,6 +47,12 @@ class User(Base):
     batches: Mapped[List["Batch"]] = relationship("Batch", back_populates="recruiter", cascade="all, delete-orphan")
 
 
+class SubmissionContext(str, Enum):
+    """Context in which portfolio was submitted."""
+    DESIGNER = "designer"  # Designer submitting their own work for feedback
+    RECRUITER = "recruiter"  # Recruiter submitting a candidate for evaluation
+
+
 class Portfolio(Base):
     """Portfolio model."""
     __tablename__ = "portfolios"
@@ -57,6 +63,8 @@ class Portfolio(Base):
     source_type: Mapped[SourceType] = mapped_column(SQLEnum(SourceType), nullable=False)
     source_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     status: Mapped[PortfolioStatus] = mapped_column(SQLEnum(PortfolioStatus), default=PortfolioStatus.PENDING)
+    submission_context: Mapped[Optional[str]] = mapped_column(String(20), default="designer", nullable=True)  # 'designer' or 'recruiter'
+    candidate_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # For recruiter submissions
     metadata_json: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

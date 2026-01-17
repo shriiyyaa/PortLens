@@ -25,7 +25,7 @@ function Dashboard() {
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetchPortfolios()
+            fetchPortfolios('designer')  // Only fetch designer context portfolios
         }
     }, [isAuthenticated, fetchPortfolios])
 
@@ -43,7 +43,7 @@ function Dashboard() {
 
         if (hasProcessing) {
             interval = setInterval(() => {
-                fetchPortfolios()
+                fetchPortfolios('designer')  // Poll with designer context
             }, 2000)
         }
 

@@ -8,11 +8,11 @@ const usePortfolioStore = create((set, get) => ({
     isLoading: false,
     error: null,
 
-    // Fetch all portfolios
-    fetchPortfolios: async () => {
+    // Fetch portfolios (optionally filtered by context)
+    fetchPortfolios: async (context = null) => {
         set({ isLoading: true, error: null })
         try {
-            const response = await portfolioApi.list()
+            const response = await portfolioApi.list(context)
             set({ portfolios: response.data, isLoading: false })
         } catch (error) {
             set({ error: error.message, isLoading: false })
@@ -57,11 +57,11 @@ const usePortfolioStore = create((set, get) => ({
         }
     },
 
-    // Submit URL
-    submitUrl: async (url, title) => {
+    // Submit URL (with submission context for designer/recruiter separation)
+    submitUrl: async (url, title, submissionContext = 'designer', candidateName = null) => {
         set({ isLoading: true, error: null })
         try {
-            const response = await portfolioApi.submitUrl(url, title)
+            const response = await portfolioApi.submitUrl(url, title, submissionContext, candidateName)
             const newPortfolio = response.data
 
             set((state) => ({

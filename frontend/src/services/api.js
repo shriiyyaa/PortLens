@@ -75,7 +75,7 @@ export const auth = {
 
 // Portfolio endpoints
 export const portfolios = {
-    list: () => api.get('/portfolios'),
+    list: (context = null) => api.get('/portfolios', { params: context ? { context } : {} }),
 
     get: (id) => api.get(`/portfolios/${id}`),
 
@@ -96,8 +96,13 @@ export const portfolios = {
         })
     },
 
-    submitUrl: (url, title) =>
-        api.post('/portfolios/url', { url, title }),
+    submitUrl: (url, title, submissionContext = 'designer', candidateName = null) =>
+        api.post('/portfolios/url', {
+            url,
+            title,
+            submission_context: submissionContext,
+            candidate_name: candidateName
+        }),
 
     delete: (id) => api.delete(`/portfolios/${id}`),
 }

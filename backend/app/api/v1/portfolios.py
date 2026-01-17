@@ -1,7 +1,7 @@
 import os
 import uuid
 import aiofiles
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -22,13 +22,19 @@ router = APIRouter(prefix="/portfolios", tags=["Portfolios"])
 
 @router.get("", response_model=List[PortfolioListResponse])
 async def list_portfolios(
+    context: Optional[str] = None,  # 'designer' or 'recruiter' filter
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
-    """List all portfolios for the current user."""
+    """List portfolios for the current user, optionally filtered by submission context."""
+    query = select(Portfolio).where(Portfolio.user_id == user_id)
+    
+    # Filter by submission context if provided
+    if context and context in ["designer", "recruiter"]:
+        query = query.where(Portfolio.submission_context == context)
+    
     result = await db.execute(
-        select(Portfolio)
-        .where(Portfolio.user_id == user_id)
+        query
         .options(selectinload(Portfolio.analysis))
         .order_by(Portfolio.created_at.desc())
     )
@@ -146,6 +152,8 @@ async def submit_portfolio_url(
         source_type=source_type,
         source_url=data.url,
         status=PortfolioStatus.PENDING,
+        submission_context=data.submission_context or "designer",
+        candidate_name=data.candidate_name,
     )
     db.add(portfolio)
     await db.commit()
