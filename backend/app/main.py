@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.db.database import init_db
+from app.db.database import init_db, run_migrations
 from app.api.router import router
 
 
@@ -12,6 +13,13 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
     await init_db()
+    
+    # Run database migrations to add any missing columns
+    try:
+        await run_migrations()
+        print("Database migrations completed")
+    except Exception as e:
+        print(f"Migration warning: {e}")
     
     # Reset any stuck portfolios
     from app.services.ai_service import reset_stuck_portfolios
