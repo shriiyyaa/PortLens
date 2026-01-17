@@ -138,12 +138,13 @@
 
 /* ===== Portfolio Input Section ===== */
 .portfolio-input-section {
-    max-width: 700px;
+    max-width: 600px;
     margin: 0 auto;
+    padding: 0 var(--space-4);
 }
 
 .input-card {
-    padding: var(--space-10);
+    padding: var(--space-8);
     border-radius: var(--radius-2xl);
     text-align: center;
     border: 1px solid var(--color-border-neon);
@@ -151,26 +152,31 @@
 }
 
 .input-card h3 {
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);
     margin-bottom: var(--space-2);
 }
 
 .input-card>p {
     color: var(--color-text-secondary);
-    margin-bottom: var(--space-6);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-5);
 }
 
 .input-form {
     display: flex;
+    flex-direction: column;
     gap: var(--space-3);
 }
 
 .input-form .input {
-    flex: 1;
+    width: 100%;
 }
 
 .input-form .btn {
-    flex-shrink: 0;
+    width: auto;
+    max-width: 280px;
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-6);
 }
 
 .btn-arrow {
