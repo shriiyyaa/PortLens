@@ -159,31 +159,31 @@ Your analysis framework is legendary in the industry. You evaluate across these 
     "communication_score": <int 0-100>,
     "overall_score": <int 0-100, weighted: Visual 30%, UX 45%, Communication 25%>,
     "hireability_score": <int 0-100, your gut on interview-readiness>,
-    "recruiter_verdict": "<ONE powerful sentence. Example: 'A senior-ready designer who would strengthen any product team, though needs to deepen research methodology for lead roles.'>",
+    "recruiter_verdict": "<2-3 powerful sentences summarizing your hiring recommendation with specific justification. Be direct and confident.>",
     "strengths": [
-        "<SPECIFIC strength with visual evidence. Example: 'Exceptional typographic hierarchy in the finance app case study - the use of Inter at 14/20 for body copy creates excellent readability.'>",
-        "<Another SPECIFIC strength>",
-        "<Another SPECIFIC strength>",
-        "<Another SPECIFIC strength>"
+        "<PARAGRAPH (2-3 sentences): Describe a specific strength with visual evidence, explain WHY it matters, and compare to industry standard. Example: 'The typography system demonstrates exceptional craft. The use of Inter at 14/20 for body copy with 1.5 line-height creates excellent readability. This level of typographic precision is comparable to senior-level work at companies like Linear or Notion.'>",
+        "<PARAGRAPH (2-3 sentences): Another detailed strength with context>",
+        "<PARAGRAPH (2-3 sentences): Another detailed strength with context>",
+        "<PARAGRAPH (2-3 sentences): Another detailed strength with context>"
     ],
     "weaknesses": [
-        "<SPECIFIC weakness with remediation. Example: 'The e-commerce checkout flow lacks error state designs - add inline validation and error recovery patterns.'>",
-        "<Another SPECIFIC weakness>",
-        "<Another SPECIFIC weakness>"
+        "<PARAGRAPH (2-3 sentences): Describe a specific weakness, explain its impact, and provide clear remediation. Example: 'The e-commerce checkout flow lacks comprehensive error state designs. This creates user anxiety and potential drop-off when validation fails. Consider adding inline validation, clear error messages, and recovery patterns similar to Stripe's checkout flow.'>",
+        "<PARAGRAPH (2-3 sentences): Another detailed weakness with remediation>",
+        "<PARAGRAPH (2-3 sentences): Another detailed weakness with remediation>"
     ],
     "recommendations": [
-        "<ACTIONABLE next step. Example: 'Study Stripe's payment form UX and rebuild the checkout case study with comprehensive input states.'>",
-        "<Another ACTIONABLE step>",
-        "<Another ACTIONABLE step>",
-        "<Another ACTIONABLE step>"
+        "<SPECIFIC ACTION: 1-2 sentences with exact steps. Example: 'Study Stripe's payment form UX patterns and rebuild the checkout case study to include comprehensive input states, inline validation, and error recovery flows.'>",
+        "<SPECIFIC ACTION: Another actionable step>",
+        "<SPECIFIC ACTION: Another actionable step>",
+        "<SPECIFIC ACTION: Another actionable step>"
     ],
     "detailed_feedback": {{
-        "visual": "<3-4 sentences with SPECIFIC observations. Reference actual elements you see.>",
-        "ux": "<3-4 sentences analyzing the PROCESS shown, not just outcomes. Reference research artifacts, wireframes, or testing evidence.>",
-        "communication": "<3-4 sentences on storytelling craft. Reference specific case study structure decisions.>"
+        "visual": "<4-5 sentences with SPECIFIC observations. Reference actual elements, colors, typography, spacing you observe. Compare to industry benchmarks.>",
+        "ux": "<4-5 sentences analyzing the PROCESS shown. Reference research artifacts, wireframes, user flows, or testing evidence. Evaluate methodology depth.>",
+        "communication": "<4-5 sentences on storytelling craft. Analyze case study structure, narrative flow, and how effectively the designer sells their work.>"
     }},
-    "seniority_assessment": "<Junior/Mid/Senior/Lead> level with justification",
-    "industry_benchmark": "<Compare to a known company's design quality. Example: 'Comparable to a strong Mid-level designer at Notion or Linear.'>"
+    "seniority_assessment": "<Junior/Mid/Senior/Lead> level with detailed justification based on observed skills and portfolio depth",
+    "industry_benchmark": "<Compare to a known company's design quality with specifics. Example: 'Comparable to a strong Mid-level designer at Notion or Linear, with particularly strong visual craft but room to grow in research methodology.'>"
 }}
 
 CRITICAL RULES:

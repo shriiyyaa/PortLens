@@ -260,11 +260,12 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
     import re
     import asyncio
     
-    # 1. Deterministic Seeding
-    if seed_id:
-        # Create a numeric seed from the portfolio ID string
-        seed_value = zlib.adler32(seed_id.encode('utf-8'))
-        random.seed(seed_value)
+    # 1. Deterministic Seeding - USE URL for consistency across all submissions
+    # This ensures the SAME portfolio URL = SAME analysis every time
+    # regardless of who submits it (designer or recruiter)
+    seed_string = source_url if source_url else (seed_id or "default-seed")
+    seed_value = zlib.adler32(seed_string.encode('utf-8'))
+    random.seed(seed_value)
     
     # 2. Try to fetch metadata if URL exists (to make it "smart")
     # Using standard library to avoid dependency issues on startup/runtime
@@ -566,54 +567,55 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         return base
 
     # PLATFORM-SPECIFIC STRENGTHS
+    # 7. STRENGTHS AND WEAKNESSES (Now as detailed paragraphs, not bullet points)
     strengths = []
     
-    # Visual strengths based on score AND platform
+    # Visual strengths based on score AND platform - now as paragraphs
     if visual_score >= 80:
-        strengths.append(f"Exceptional visual polish: The {source_name} demonstrates high-fidelity execution.")
+        strengths.append(f"The {source_name} demonstrates exceptional visual polish that immediately communicates professionalism and attention to detail. The high-fidelity execution shows a designer who understands that craft quality directly impacts perceived trustworthiness. This level of visual refinement is comparable to senior-level work at design-forward companies like Stripe or Linear.")
         if platform == "behance":
-            strengths.append("Effective use of Behance's project layout to showcase work progressively.")
+            strengths.append("The Behance project layout is used strategically to guide viewers through the work. Progressive disclosure of information keeps engagement high, and the hero images are optimized for the platform's gallery format. This demonstrates platform-specific thinking that many designers overlook.")
         elif platform == "dribbble":
-            strengths.append("Strong shot composition that captures attention in the Dribbble feed.")
+            strengths.append("Shot composition shows a strong understanding of visual impact in a feed-based environment. Each piece is designed to capture attention quickly while maintaining enough depth for closer inspection. This balance is difficult to achieve and shows design maturity.")
         elif platform == "custom":
-            strengths.append("Custom portfolio site demonstrates technical implementation skills.")
-        strengths.append("Strong typographic hierarchy that effectively guides reader attention.")
+            strengths.append("Building a custom portfolio site demonstrates valuable technical implementation skills beyond pure design. This shows recruiters that the designer can bridge the gap between design and development, making them more versatile and valuable to product teams.")
+        strengths.append("Typographic hierarchy is handled with confidence, effectively guiding reader attention through content. The consistent rhythm between headings, subheadings, and body text creates a professional reading experience that respects the viewer's time and cognitive load.")
     elif visual_score >= 70:
-        strengths.append("Clean and functional layout suitable for professional contexts.")
-        strengths.append("Good grasp of fundamental design principles like alignment and proximity.")
+        strengths.append("The layout is clean and functional, presenting work in a professional manner suitable for most hiring contexts. While there's room to push for more distinctive styling, the fundamentals are solid and would represent the designer well in interviews.")
+        strengths.append("Fundamental design principles like alignment, proximity, and balance are applied consistently throughout. This foundation suggests a designer who can be trusted with production work and is ready to develop more advanced skills with mentorship.")
     else:
-        strengths.append("Shows potential in layout structure and basic composition.")
+        strengths.append("The portfolio shows emerging understanding of layout structure and composition basics. With focused practice on fundamental principles like the 8-point grid and typographic scale, the visual execution will improve significantly. The foundational thinking is present.")
         
     if ux_score >= 80:
-        strengths.append("User-centric narrative: Case studies clearly articulate the problem space.")
+        strengths.append("Case studies demonstrate genuine user-centric thinking, clearly articulating the problem space before jumping to solutions. This problem-first approach is exactly what hiring managers look for, as it indicates a designer who will ask 'why' before 'what.'")
         if specialization == "mobile":
-            strengths.append("Strong understanding of mobile UX patterns and touch interactions.")
+            strengths.append("Strong understanding of mobile-specific UX patterns is evident throughout the work. Touch targets, gesture conventions, and thumb-zone considerations show a designer who thinks beyond visual design into true interaction design. This depth is increasingly valuable.")
         elif specialization == "web":
-            strengths.append("Demonstrates expertise in responsive web design and dashboard UX.")
+            strengths.append("Expertise in responsive web design and dashboard UX shines through the portfolio. The work shows understanding of complex information architecture and how users navigate data-heavy interfaces. This specialization is in high demand.")
         elif specialization == "research":
-            strengths.append("Exceptional research methodology and synthesis skills.")
+            strengths.append("Research methodology is exceptional, with clear synthesis from insights to design decisions. The portfolio demonstrates both applied rigor and the ability to communicate research value to stakeholders. This is a rare and valuable skill combination.")
     elif ux_score >= 70:
-        strengths.append("Solid problem definitions in case studies.")
+        strengths.append("Problem definitions in case studies are solid, providing enough context for viewers to understand the design challenges. With more emphasis on research methodology and testing evidence, these case studies would be even more compelling to hiring managers.")
     
     if communication_score >= 80:
-        strengths.append("Compelling storytelling that makes complex projects accessible.")
+        strengths.append("Storytelling throughout the portfolio is compelling, making complex projects accessible to viewers who may not be designers. The narrative arc of each case study builds interest and leads naturally to showcasing the designer's impact. This communication skill is often what separates senior designers from mid-level ones.")
     
-    # PLATFORM/SPECIALIZATION-SPECIFIC WEAKNESSES
+    # PLATFORM/SPECIALIZATION-SPECIFIC WEAKNESSES - now as paragraphs
     weaknesses = []
     if visual_score < 75:
-        weaknesses.append("Visual Hierarchy: Primary calls-to-action could benefit from more contrast.")
+        weaknesses.append("Visual hierarchy could be strengthened, particularly in how primary calls-to-action are presented. When CTAs don't have sufficient contrast, users struggle to identify next steps, which undermines the designer's credibility in demonstrating conversion-focused thinking. Consider studying effective landing pages from companies like Stripe or Wise for hierarchy inspiration.")
         if platform == "dribbble":
-            weaknesses.append("Dribbble shots could use stronger visual hooks to stand out in the feed.")
+            weaknesses.append("Dribbble shots need stronger visual hooks to stand out in the competitive feed environment. The first impression happens in milliseconds, and current compositions may be getting lost among more attention-grabbing work. Study top Dribbble performers to understand what creates immediate visual impact while maintaining substance.")
     if ux_score < 75:
-        weaknesses.append("Process Clarity: Research synthesis and the 'why' behind decisions needs more depth.")
+        weaknesses.append("Process documentation could go deeper into the 'why' behind design decisions. Currently, the case studies show what was done but don't fully articulate the research insights or user feedback that drove those choices. Adding this layer transforms a portfolio from 'pretty pictures' to 'evidence-based design thinking.'")
         if specialization == "mobile":
-            weaknesses.append("Mobile-specific patterns (gestures, thumb zones) could be better documented.")
+            weaknesses.append("Mobile-specific patterns like gestures, thumb zones, and device-specific considerations could be better documented. These details show a deep understanding of the platform and differentiate mobile specialists from generalists. Consider adding annotations explaining why certain interaction patterns were chosen.")
     if communication_score < 75:
-        weaknesses.append("Storytelling: Case studies would benefit from clearer before/after impact metrics.")
+        weaknesses.append("Case studies would benefit from clearer before/after impact metrics. While the visual work is shown, the business or user impact isn't quantified, which makes it harder for recruiters to assess ROI. Even estimated improvements (e.g., 'projected 25% reduction in support tickets') demonstrate business acumen.")
     
-    # Ensure at least one weakness for constructive feedback
+    # Ensure at least one constructive weakness
     if not weaknesses:
-        weaknesses.append("Consider adding more quantitative outcomes to strengthen impact statements.")
+        weaknesses.append("While the portfolio is strong overall, adding more quantitative outcomes would further strengthen credibility. Numbers and metrics make abstract design impact concrete and memorable. Consider adding engagement data, conversion improvements, or user satisfaction scores even if they're approximations.")
 
     # CONTEXT-AWARE RECOMMENDATIONS (based on platform + specialization + keywords)
     recommendations = []
