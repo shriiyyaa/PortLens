@@ -678,6 +678,28 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
     verdict_quality = "Top-Tier" if hireability_score >= 85 else "Strong" if hireability_score >= 75 else "Developing"
     verdict_specialization = f"with evident strength in {specialization} design" if specialization != "general" else "with versatile design skills"
     
+    # Determine seniority level based on overall score
+    if overall_score >= 90:
+        seniority = "Lead/Principal"
+        seniority_justification = "Demonstrates FAANG-level craft and strategic thinking."
+        industry_benchmark = "Comparable to Senior/Lead designers at Stripe, Figma, or Linear."
+    elif overall_score >= 80:
+        seniority = "Senior"
+        seniority_justification = "Strong IC ready for complex, ambiguous problems."
+        industry_benchmark = "Comparable to Senior designers at well-funded Series B+ startups."
+    elif overall_score >= 70:
+        seniority = "Mid-Level"
+        seniority_justification = "Solid fundamentals with clear path to senior."
+        industry_benchmark = "Comparable to Mid-level designers at established tech companies."
+    elif overall_score >= 60:
+        seniority = "Junior/Mid"
+        seniority_justification = "Growing skills, benefits from mentorship."
+        industry_benchmark = "Comparable to Junior/Mid designers at early-stage startups."
+    else:
+        seniority = "Junior"
+        seniority_justification = "Entry-level with potential for growth."
+        industry_benchmark = "Entry-level, suitable for internships or junior roles."
+    
     return {
         "visual_score": visual_score,
         "ux_score": ux_score,
@@ -689,6 +711,8 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         "weaknesses": weaknesses[:4],
         "recommendations": recommendations[:6],
         "detailed_feedback": detailed_feedback,
+        "seniority_assessment": f"{seniority} - {seniority_justification}",
+        "industry_benchmark": industry_benchmark,
         "meta": {
             "title": page_title,
             "description": page_description[:200] + "..." if len(page_description) > 200 else page_description,
@@ -696,7 +720,7 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
             "specialization": specialization
         },
         "ai_generated": False,
-        "model_used": "PortLens-Enterprise-v2"
+        "model_used": "PortLens-Enterprise-v3"
     }
 
 
