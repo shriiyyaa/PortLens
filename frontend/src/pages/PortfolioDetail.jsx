@@ -194,24 +194,24 @@ function PortfolioDetail() {
                         <div className="feedback-grid">
                             <div className="feedback-card card strengths">
                                 <h2>✓ Strengths</h2>
-                                <ul>
+                                <div className="feedback-paragraphs">
                                     {(analysis.strengths || []).length > 0 ? (
-                                        analysis.strengths.map((s, i) => <li key={i}>{s}</li>)
+                                        analysis.strengths.map((s, i) => <p key={i}>{s}</p>)
                                     ) : (
-                                        <li className="placeholder">Analysis pending...</li>
+                                        <p className="placeholder">Analysis pending...</p>
                                     )}
-                                </ul>
+                                </div>
                             </div>
 
                             <div className="feedback-card card weaknesses">
                                 <h2>✗ Areas to Improve</h2>
-                                <ul>
+                                <div className="feedback-paragraphs">
                                     {(analysis.weaknesses || []).length > 0 ? (
-                                        analysis.weaknesses.map((w, i) => <li key={i}>{w}</li>)
+                                        analysis.weaknesses.map((w, i) => <p key={i}>{w}</p>)
                                     ) : (
-                                        <li className="placeholder">Analysis pending...</li>
+                                        <p className="placeholder">Analysis pending...</p>
                                     )}
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     </div>

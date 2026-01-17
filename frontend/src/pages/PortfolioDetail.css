@@ -332,6 +332,31 @@
     color: var(--color-danger);
 }
 
+/* Paragraph-based feedback display */
+.feedback-paragraphs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.feedback-paragraphs p {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+    font-size: var(--text-base);
+}
+
+.feedback-paragraphs p:last-child {
+    border-bottom: none;
+}
+
+.feedback-paragraphs p.placeholder {
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
+
 /* Recommendations */
 .recommendations-section {
     padding: var(--space-8);

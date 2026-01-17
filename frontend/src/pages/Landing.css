@@ -111,6 +111,15 @@
     margin-bottom: var(--space-16);
 }
 
+/* Make hero role buttons smaller */
+.hero-buttons .btn-xl {
+    width: auto;
+    min-width: auto;
+    max-width: 220px;
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+}
+
 /* Hero Glow Effect */
 .hero-glow {
     position: absolute;
