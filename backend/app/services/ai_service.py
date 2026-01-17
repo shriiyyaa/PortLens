@@ -95,18 +95,19 @@ async def analyze_portfolio(portfolio_id: str):
             analysis_result = None
             
             # 1. Try Gemini Analysis with Strict Timeout
-            # FORCE DISABLE GEMINI for stability - relying on Enhanced Mock Engine
-            if False and GEMINI_AVAILABLE and images:
+            # Re-enabled Gemini for TRUE AI analysis - fallback if fails
+            if GEMINI_AVAILABLE and images:
                 try:
                     print(f"Attempting Gemini analysis for {portfolio_id}...")
                     analysis_result = await asyncio.wait_for(
                         analyze_with_gemini(images, portfolio.source_url),
-                        timeout=5.0  # 5s strict timeout as requested
+                        timeout=10.0  # 10s timeout for real AI analysis
                     )
+                    print(f"Gemini analysis succeeded for {portfolio_id}")
                 except asyncio.TimeoutError:
-                    print(f"Gemini analysis timed out for {portfolio_id}. Falling back to mock.")
+                    print(f"Gemini analysis timed out for {portfolio_id}. Falling back to enhanced engine.")
                 except Exception as e:
-                    print(f"Gemini analysis failed: {e}. Falling back to mock.")
+                    print(f"Gemini analysis failed: {e}. Falling back to enhanced engine.")
             
             # 2. Fallback to Enhanced Mock Analysis
             if not analysis_result:
@@ -351,85 +352,232 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         context_keywords = list(unique_words)[:5]
     
     context_prefix = f"For a {source_name} focusing on {', '.join(context_keywords) if context_keywords else 'digital product design'}, "
+    
+    # Detect platform for specific advice
+    platform = "generic"
+    if source_url:
+        url_lower = source_url.lower()
+        if "behance.net" in url_lower:
+            platform = "behance"
+        elif "dribbble.com" in url_lower:
+            platform = "dribbble"
+        elif "linkedin.com" in url_lower:
+            platform = "linkedin"
+        elif any(x in url_lower for x in ["notion.so", "notion.site"]):
+            platform = "notion"
+        elif any(x in url_lower for x in ["framer.com", "webflow.io", "squarespace"]):
+            platform = "custom"
+    
+    # Detect specialization from keywords
+    specialization = "general"
+    all_text = (page_title + " " + page_description).lower()
+    if any(x in all_text for x in ["mobile", "ios", "android", "app"]):
+        specialization = "mobile"
+    elif any(x in all_text for x in ["web", "saas", "dashboard", "webapp"]):
+        specialization = "web"
+    elif any(x in all_text for x in ["brand", "identity", "logo", "visual identity"]):
+        specialization = "branding"
+    elif any(x in all_text for x in ["ux research", "user research", "usability"]):
+        specialization = "research"
+    elif any(x in all_text for x in ["3d", "motion", "animation", "video"]):
+        specialization = "motion"
 
-    # Helper to generate detailed paragraph
+    # MASSIVE PHRASE POOLS (20+ per tier/category)
     def generate_paragraph(score, category, keywords=[]):
-        # Elite Visual Vocabulary
+        # VISUAL DESIGN PHRASES
         phrases_high_visual = [
             "masterfully applies the Golden Ratio to establish a harmonious grid structure.",
             "demonstrates exceptional command of typographic rhythm and vertical cadence.",
             "utilizes Gestalt principles (Proximity, Common Region) to create intuitive grouping.",
             "exhibits a refined color methodology that balances brand equity with WCAG 2.1 accessibility.",
             "employs sophisticated use of negative space to drive cognitive focus.",
-            "showcases a pixel-perfect execution reminiscent of top-tier agency work."
+            "showcases a pixel-perfect execution reminiscent of top-tier agency work.",
+            "achieves visual harmony through deliberate contrast ratios and type scaling.",
+            "presents a cohesive design system with reusable components and patterns.",
+            "demonstrates mastery of visual weight distribution across the layout.",
+            "employs a restrained color palette that elevates rather than overwhelms.",
+            "showcases exceptional attention to micro-details like icon consistency and shadow depth.",
+            "balances aesthetic appeal with functional clarity in every screen.",
+            "presents a premium visual language that positions the designer at senior level.",
+            "demonstrates understanding of platform-specific design guidelines (iOS/Material).",
+            "achieves elegant data visualization that transforms complexity into clarity.",
+            "uses motion design principles even in static mockups through implied movement.",
+            "showcases typography that breathes - proper line-height and letter-spacing throughout.",
+            "presents a color system with clear semantic meaning (success/error/warning states).",
+            "demonstrates sophisticated use of depth through layering and elevation.",
+            "achieves visual storytelling through thoughtful image selection and cropping."
         ]
+        
         phrases_mid_visual = [
             "maintains a solid visual hierarchy but could push for more dynamic tension.",
             "adheres to fundamental grid systems, though the gutters feel slightly constrained.",
             "uses a consistent design language that aligns with current material design standards.",
             "achieves a clean aesthetic, though the typographic scale lacks some contrast.",
-            "presents a polished interface that communicates reliability."
+            "presents a polished interface that communicates reliability.",
+            "shows good baseline visual skills with room for elevated execution.",
+            "uses color effectively though the palette could be more distinctive.",
+            "demonstrates competent layout skills that meet industry expectations.",
+            "presents readable typography though the hierarchy could be sharper.",
+            "shows understanding of visual principles with some inconsistencies in application.",
+            "achieves functional clarity though the visual personality is understated.",
+            "uses spacing systematically though the rhythm could be more intentional.",
+            "demonstrates solid foundational skills ready for refinement.",
+            "presents work that is visually competent with clear growth potential.",
+            "shows awareness of trends without fully owning a distinctive style."
         ]
         
-        # Elite UX Vocabulary
+        phrases_low_visual = [
+            "shows potential but requires more rigour in fundamental execution.",
+            "presents ideas clearly, but the visual polish detracts from the solution.",
+            "would benefit from a stricter adherence to a 4pt/8pt grid system.",
+            "needs stronger typographic hierarchy to guide the viewer's attention.",
+            "could improve contrast ratios for better accessibility compliance.",
+            "shows emerging skills that would benefit from systematic study.",
+            "presents work that prioritizes content over visual refinement.",
+            "demonstrates foundational understanding with notable gaps in execution.",
+            "would benefit from studying established design systems like Material or HIG.",
+            "shows enthusiasm for design with room for technical skill development."
+        ]
+        
+        # UX PROCESS PHRASES
         phrases_high_ux = [
             "articulates a user journey map that perfectly addresses pain points and friction.",
             "demonstrates rigorous usability testing methodology with clear iteration cycles.",
-            "optimizes interaction cost (Interaction Design) to reduce cognitive load effectively.",
+            "optimizes interaction cost (Fitt's Law, Hick's Law) to reduce cognitive load.",
             "showcases deep empathy for the persona through comprehensive research artifacts.",
-            "seamlessly integrates micro-interactions that enhance the perceived performance."
+            "seamlessly integrates micro-interactions that enhance perceived performance.",
+            "presents a research-driven approach with clear insights-to-design mapping.",
+            "demonstrates systems thinking in how components interconnect across flows.",
+            "shows evidence of user testing with documented findings and iterations.",
+            "articulates clear success metrics and how design decisions ladder up to them.",
+            "presents accessibility as a core consideration, not an afterthought.",
+            "demonstrates understanding of edge cases and error states in user flows.",
+            "shows strategic thinking in feature prioritization and MVP scoping.",
+            "presents comprehensive user personas based on actual research data.",
+            "documents the design rationale with clear 'why' behind each decision.",
+            "shows iteration history that demonstrates responsive problem-solving.",
+            "integrates quantitative and qualitative research methodologies.",
+            "presents information architecture that scales logically with content growth.",
+            "demonstrates cross-functional collaboration in the design process.",
+            "shows awareness of technical constraints while pushing for user value.",
+            "presents a design that anticipates user needs proactively."
         ]
+        
         phrases_mid_ux = [
             "shows a clear understanding of user flows, though the edge cases need attention.",
             "presents valid wireframes, but high-fidelity prototyping could explore more states.",
-            "addresses the primary use case well, but accessibility (screen reader) is unclear.",
-            "follows standard heuristic principles (Nielsen's 10) for interface design."
+            "addresses the primary use case well, but accessibility considerations are unclear.",
+            "follows standard heuristic principles (Nielsen's 10) for interface design.",
+            "demonstrates process awareness with room for deeper research integration.",
+            "shows user-centered thinking though the research artifacts are limited.",
+            "presents logical task flows with some gaps in error handling.",
+            "demonstrates understanding of UX fundamentals with growing sophistication.",
+            "shows awareness of user needs though validation methods are not documented.",
+            "presents structured thinking with room for more rigorous methodology.",
+            "demonstrates problem-solving skills with opportunity for deeper analysis.",
+            "shows good instincts for user needs that would benefit from research validation.",
+            "presents organized thinking that could be elevated with more artifacts.",
+            "demonstrates process understanding ready for more complex challenges."
         ]
         
-        # Elite Communication/Storytelling Vocabulary
+        phrases_low_ux = [
+            "needs to focus on the 'Why' rather than just the 'What' in case studies.",
+            "would benefit from documenting the research and discovery process.",
+            "shows potential for UX thinking that needs structured methodology.",
+            "presents solutions without clearly articulating the problem space.",
+            "would benefit from user testing to validate design assumptions.",
+            "demonstrates visual skills that could be strengthened with UX process.",
+            "needs clearer articulation of user needs and pain points.",
+            "shows eagerness to solve problems with room for research skills.",
+            "presents work that would benefit from design thinking frameworks.",
+            "demonstrates creative solutions that need user validation."
+        ]
+        
+        # COMMUNICATION PHRASES
         phrases_high_comm = [
-            "structures the case study with a compelling STAR (Situation, Task, Action, Result) narrative.",
+            "structures the case study with a compelling STAR narrative.",
             "effectively quantifies design impact using specific KPIs (Conversion, Retention).",
             "balances high-level strategy with granular design decisions seamlessly.",
             "presents 'Concept to Launch' evolution with remarkable clarity and honesty.",
-            "demonstrates strategic thinking by linking design outcomes to business goals."
-        ]
-        phrases_mid_comm = [
-            "clearly outlines the problem statement, but the 'Why' behind decisions is brief.",
-            "presents the final solution well, but the 'messey middle' process is glossed over.",
-            "communicates the design intent, but success metrics are largely qualitative.",
-            "structure follows a logical flow, though the narrative hook could be stronger."
+            "demonstrates strategic thinking by linking design outcomes to business goals.",
+            "tells a compelling story that hooks the reader from the first paragraph.",
+            "uses data visualization to communicate complex metrics accessibly.",
+            "presents failures and pivots honestly, showing mature self-reflection.",
+            "articulates constraints and tradeoffs with professional candor.",
+            "demonstrates clear writing that respects the reader's time.",
+            "uses progressive disclosure to guide readers through complexity.",
+            "presents before/after comparisons that quantify improvement.",
+            "shows awareness of audience by tailoring depth appropriately.",
+            "demonstrates thought leadership through unique insights.",
+            "uses visual hierarchy in case study layout to guide reading flow.",
+            "presents a clear thesis statement for each case study.",
+            "shows excellent pacing that maintains reader engagement.",
+            "demonstrates ability to synthesize complex projects into digestible narratives.",
+            "uses quotes and testimonials to add credibility.",
+            "presents work with appropriate confidence and humility balance."
         ]
         
-        phrases_low = [
-            "shows potential but requires more rigour in fundamental execution.",
-            "presents ideas clearly, but the visual polish detracts from the solution.",
-            "needs to focus on the 'Why' rather than just the 'What' in case studies.",
-            "would benefit from a stricter adherence to a 4pt/8pt grid system."
+        phrases_mid_comm = [
+            "clearly outlines the problem statement, but the 'Why' behind decisions is brief.",
+            "presents the final solution well, but the 'messy middle' process is glossed over.",
+            "communicates the design intent, but success metrics are largely qualitative.",
+            "structure follows a logical flow, though the narrative hook could be stronger.",
+            "presents clear information with room for more engaging storytelling.",
+            "shows good organizational skills in presenting work.",
+            "demonstrates ability to explain decisions with room for deeper rationale.",
+            "presents work professionally with opportunity for more personality.",
+            "shows structured thinking in case study organization.",
+            "demonstrates clear communication with room for more impact metrics.",
+            "presents projects comprehensively with opportunity for better pacing.",
+            "shows awareness of storytelling with room for more compelling hooks.",
+            "demonstrates professional presentation standards."
+        ]
+        
+        phrases_low_comm = [
+            "would benefit from clearer problem-solution-outcome structure.",
+            "needs more context about the project goals and constraints.",
+            "shows work without fully explaining the design thinking behind it.",
+            "presents outcomes without quantifying the impact.",
+            "would benefit from studying case study best practices.",
+            "demonstrates work that could use stronger narrative framing.",
+            "shows projects that need clearer articulation of value.",
+            "presents work that would benefit from more detailed process documentation.",
+            "needs stronger connection between research insights and design decisions.",
+            "demonstrates work with room for storytelling skill development."
         ]
         
         if category == "Visual Design":
-            pool = phrases_high_visual if score >= 80 else phrases_mid_visual if score >= 70 else phrases_low
+            pool = phrases_high_visual if score >= 80 else phrases_mid_visual if score >= 70 else phrases_low_visual
         elif category == "User Experience":
-            pool = phrases_high_ux if score >= 80 else phrases_mid_ux if score >= 70 else phrases_low
+            pool = phrases_high_ux if score >= 80 else phrases_mid_ux if score >= 70 else phrases_low_ux
         elif category == "Communication & Storytelling":
-            pool = phrases_high_comm if score >= 80 else phrases_mid_comm if score >= 70 else phrases_low
+            pool = phrases_high_comm if score >= 80 else phrases_mid_comm if score >= 70 else phrases_low_comm
         else:
-            pool = phrases_low # Fallback
+            pool = phrases_low_visual
 
-        selected = random.sample(pool, min(2, len(pool)))
+        # Select 2-3 unique phrases
+        selected = random.sample(pool, min(3, len(pool)))
         
-        base = f"The {category} (Score: {int(score)}) {selected[0]} Additionally, the work {selected[1]}"
-        if keywords:
-            base += f" It aligns well with the semantic themes of '{keywords[0]}' and '{keywords[1] if len(keywords)>1 else 'digital ecosystem'}'."
+        base = f"The {category} (Score: {int(score)}) {selected[0]} Additionally, {selected[1]}"
+        if len(selected) > 2:
+            base += f" Furthermore, {selected[2]}"
+        if keywords and len(keywords) > 0:
+            base += f" This aligns with the focus on '{keywords[0]}'."
         return base
 
-    # Strengths
+    # PLATFORM-SPECIFIC STRENGTHS
     strengths = []
+    
+    # Visual strengths based on score AND platform
     if visual_score >= 80:
         strengths.append(f"Exceptional visual polish: The {source_name} demonstrates high-fidelity execution.")
+        if platform == "behance":
+            strengths.append("Effective use of Behance's project layout to showcase work progressively.")
+        elif platform == "dribbble":
+            strengths.append("Strong shot composition that captures attention in the Dribbble feed.")
+        elif platform == "custom":
+            strengths.append("Custom portfolio site demonstrates technical implementation skills.")
         strengths.append("Strong typographic hierarchy that effectively guides reader attention.")
-        strengths.append("Consistent and harmonious color usage that strengthens personal branding.")
     elif visual_score >= 70:
         strengths.append("Clean and functional layout suitable for professional contexts.")
         strengths.append("Good grasp of fundamental design principles like alignment and proximity.")
@@ -438,40 +586,97 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         
     if ux_score >= 80:
         strengths.append("User-centric narrative: Case studies clearly articulate the problem space.")
-        strengths.append("Navigation and information architecture appear intuitive and accessible.")
+        if specialization == "mobile":
+            strengths.append("Strong understanding of mobile UX patterns and touch interactions.")
+        elif specialization == "web":
+            strengths.append("Demonstrates expertise in responsive web design and dashboard UX.")
+        elif specialization == "research":
+            strengths.append("Exceptional research methodology and synthesis skills.")
     elif ux_score >= 70:
         strengths.append("Solid problem definitions in case studies.")
     
-    # Weaknesses
+    if communication_score >= 80:
+        strengths.append("Compelling storytelling that makes complex projects accessible.")
+    
+    # PLATFORM/SPECIALIZATION-SPECIFIC WEAKNESSES
     weaknesses = []
     if visual_score < 75:
-        weaknesses.append("Visual Hierarchy: Primary calls-to-action could do with more contrast.")
-        weaknesses.append("Typography: Line-height and kerning need refinement for optimal readability.")
+        weaknesses.append("Visual Hierarchy: Primary calls-to-action could benefit from more contrast.")
+        if platform == "dribbble":
+            weaknesses.append("Dribbble shots could use stronger visual hooks to stand out in the feed.")
     if ux_score < 75:
-        weaknesses.append("Process Clarity: Research synthesis and 'why' behind decisions is missing.")
-        weaknesses.append("Success Metrics: Lack of quantitative data (KPIs) to prove impact.")
+        weaknesses.append("Process Clarity: Research synthesis and the 'why' behind decisions needs more depth.")
+        if specialization == "mobile":
+            weaknesses.append("Mobile-specific patterns (gestures, thumb zones) could be better documented.")
     if communication_score < 75:
-        weaknesses.append("Storytelling: The narrative arc feels disconnected in some case studies.")
+        weaknesses.append("Storytelling: Case studies would benefit from clearer before/after impact metrics.")
+    
+    # Ensure at least one weakness for constructive feedback
+    if not weaknesses:
+        weaknesses.append("Consider adding more quantitative outcomes to strengthen impact statements.")
 
-    # Recommendations
+    # CONTEXT-AWARE RECOMMENDATIONS (based on platform + specialization + keywords)
     recommendations = []
-    recommendations.append("Outcome Focus: Rewrite case study titles to focus on results (e.g., 'Increased Conversion by 20%').")
-    if visual_score < 85:
-        recommendations.append("Visual Audit: Review the portfolio on mobile devices to ensure spacing consistency.")
-    if ux_score < 85:
-        recommendations.append("Process Artifacts: Add sketches, wireframes, and sticky notes to show the 'messy middle' of design.")
-    recommendations.append("Social Proof: Add a testimonials section or peer reviews to build trust.")
-    recommendations.append("Hero Station: Optimize the 'About Me' section to clearly state your unique value prop immediately.")
+    
+    # Universal high-impact recommendations
+    if "case" in all_text or "study" in all_text:
+        recommendations.append("Outcome Focus: Lead case study titles with results (e.g., 'Increased Conversion by 35%').")
+    else:
+        recommendations.append("Add Case Studies: Transform project showcases into narrative-driven case studies.")
+    
+    # Platform-specific recommendations
+    if platform == "behance":
+        recommendations.append("Behance Optimization: Add more project modules and appreciation-worthy hero images.")
+        recommendations.append("Cross-Posting: Repurpose top Behance projects as Medium articles for SEO.")
+    elif platform == "dribbble":
+        recommendations.append("Dribbble Strategy: Post process shots and case study breakdowns, not just finals.")
+        recommendations.append("Tags & Timing: Optimize posting times and use trending tags for visibility.")
+    elif platform == "linkedin":
+        recommendations.append("LinkedIn Polish: Add a featured section with direct links to full case studies.")
+        recommendations.append("Thought Leadership: Write short posts about your design process to build authority.")
+    elif platform == "notion":
+        recommendations.append("Notion Upgrade: Consider migrating to a custom domain for a more professional presence.")
+        recommendations.append("Visual Polish: Notion templates can feel generic - add custom graphics and icons.")
+    elif platform == "custom":
+        recommendations.append("Performance: Ensure your custom site loads in under 3 seconds on mobile.")
+        recommendations.append("SEO: Add meta descriptions and alt text to improve discoverability.")
+    else:
+        recommendations.append("Platform Presence: Consider creating profiles on Behance and Dribbble for visibility.")
+    
+    # Specialization-specific recommendations
+    if specialization == "mobile":
+        recommendations.append("Mobile Deep Dive: Add device-specific annotations explaining gesture decisions.")
+        recommendations.append("Prototype Links: Include Figma/ProtoPie prototypes to demonstrate interactions.")
+    elif specialization == "web":
+        recommendations.append("Responsive Showcase: Add tablet and mobile versions to demonstrate adaptive thinking.")
+        recommendations.append("Technical Context: Mention collaboration with developers and any handoff artifacts.")
+    elif specialization == "branding":
+        recommendations.append("Brand System: Showcase the full identity system including applications.")
+        recommendations.append("Motion Identity: Consider adding logo animations or brand motion guidelines.")
+    elif specialization == "research":
+        recommendations.append("Research Portfolio: Create a dedicated research showcase with methodology templates.")
+        recommendations.append("Impact Metrics: Quantify how research insights influenced final design decisions.")
+    elif specialization == "motion":
+        recommendations.append("Showreel: Create a 60-second highlight reel of your best motion work.")
+        recommendations.append("Process Breakdown: Show the animation principles behind key moments.")
+    
+    # Universal closing recommendations
+    recommendations.append("Social Proof: Add testimonials from colleagues, managers, or clients.")
+    recommendations.append("About Section: Clearly state your unique value proposition in the first sentence.")
 
-    # Detailed Feedback
+    # Generate detailed feedback paragraphs
     detailed_feedback = {
         "visual": generate_paragraph(visual_score, "Visual Design", context_keywords[:2]),
-        "ux": generate_paragraph(ux_score, "User Experience", context_keywords[2:4]),
-        "communication": generate_paragraph(communication_score, "Communication & Storytelling", context_keywords[4:])
+        "ux": generate_paragraph(ux_score, "User Experience", context_keywords[2:4] if len(context_keywords) > 2 else []),
+        "communication": generate_paragraph(communication_score, "Communication & Storytelling", context_keywords[4:] if len(context_keywords) > 4 else [])
     }
     
-    # Reset random seed behavior for other parts of the system
+    # Reset random seed
     random.seed(None)
+    
+    # Construct recruiter verdict with more specificity
+    verdict_quality = "Top-Tier" if hireability_score >= 85 else "Strong" if hireability_score >= 75 else "Developing"
+    verdict_specialization = f"with evident strength in {specialization} design" if specialization != "general" else "with versatile design skills"
     
     return {
         "visual_score": visual_score,
@@ -479,17 +684,19 @@ async def generate_enhanced_mock_analysis(image_paths: List[str] = None, source_
         "communication_score": communication_score,
         "overall_score": overall_score,
         "hireability_score": hireability_score,
-        "recruiter_verdict": f"A {'Top-Tier' if hireability_score >= 85 else 'Solid' if hireability_score >= 75 else 'Developing'} Candidate. {context_prefix} The portfolio shows {'exceptional promise' if overall_score >= 80 else 'clear capability'}.",
-        "strengths": strengths[:4],
-        "weaknesses": weaknesses[:3],
-        "recommendations": recommendations[:5],
+        "recruiter_verdict": f"A {verdict_quality} Candidate {verdict_specialization}. {context_prefix}The portfolio shows {'exceptional promise and immediate hire potential' if overall_score >= 80 else 'clear capability with room for growth' if overall_score >= 70 else 'foundational skills ready for mentorship'}.",
+        "strengths": strengths[:5],
+        "weaknesses": weaknesses[:4],
+        "recommendations": recommendations[:6],
         "detailed_feedback": detailed_feedback,
         "meta": {
             "title": page_title,
-            "description": page_description[:200] + "..." if len(page_description) > 200 else page_description
+            "description": page_description[:200] + "..." if len(page_description) > 200 else page_description,
+            "platform": platform,
+            "specialization": specialization
         },
-        "ai_generated": False,  # Explicitly false, but quality is high
-        "model_used": "PortLens-Enterprise-v1"
+        "ai_generated": False,
+        "model_used": "PortLens-Enterprise-v2"
     }
 
 
