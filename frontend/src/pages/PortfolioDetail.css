@@ -357,6 +357,44 @@
     font-style: italic;
 }
 
+/* Seniority Section */
+.seniority-section {
+    margin-bottom: var(--space-10);
+}
+
+.seniority-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+}
+
+.seniority-card {
+    padding: var(--space-6);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius-xl);
+    border-left: 4px solid var(--color-neon);
+}
+
+.seniority-card h3 {
+    font-size: var(--text-base);
+    color: var(--color-neon);
+    margin-bottom: var(--space-3);
+}
+
+.seniority-card p {
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .seniority-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Recommendations */
 .recommendations-section {
     padding: var(--space-8);

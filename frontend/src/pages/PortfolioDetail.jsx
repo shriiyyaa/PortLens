@@ -189,11 +189,12 @@ function PortfolioDetail() {
                         </div>
                     </div>
 
-                    {/* Strengths & Weaknesses */}
+                    {/* Strengths & Context-Aware Feedback */}
                     <div className="feedback-section">
                         <div className="feedback-grid">
+                            {/* For Recruiters: "Why Hire This Candidate" / For Designers: "Strengths" */}
                             <div className="feedback-card card strengths">
-                                <h2>✓ Strengths</h2>
+                                <h2>{useAuthStore.getState().user?.role === 'recruiter' ? '✓ Why Hire This Candidate' : '✓ Strengths'}</h2>
                                 <div className="feedback-paragraphs">
                                     {(analysis.strengths || []).length > 0 ? (
                                         analysis.strengths.map((s, i) => <p key={i}>{s}</p>)
@@ -203,8 +204,9 @@ function PortfolioDetail() {
                                 </div>
                             </div>
 
+                            {/* For Recruiters: "Red Flags / Interview Probes" / For Designers: "Areas to Improve" */}
                             <div className="feedback-card card weaknesses">
-                                <h2>✗ Areas to Improve</h2>
+                                <h2>{useAuthStore.getState().user?.role === 'recruiter' ? '⚠ Red Flags to Probe' : '✗ Areas to Improve'}</h2>
                                 <div className="feedback-paragraphs">
                                     {(analysis.weaknesses || []).length > 0 ? (
                                         analysis.weaknesses.map((w, i) => <p key={i}>{w}</p>)
@@ -216,19 +218,44 @@ function PortfolioDetail() {
                         </div>
                     </div>
 
-                    {/* Recommendations / Growth Roadmap */}
+                    {/* Seniority & Industry Benchmark - Show for Both */}
+                    {(analysis.seniority_assessment || analysis.industry_benchmark) && (
+                        <div className="seniority-section">
+                            <div className="seniority-grid">
+                                {analysis.seniority_assessment && (
+                                    <div className="seniority-card card">
+                                        <h3>📊 Seniority Level</h3>
+                                        <p>{analysis.seniority_assessment}</p>
+                                    </div>
+                                )}
+                                {analysis.industry_benchmark && (
+                                    <div className="seniority-card card">
+                                        <h3>🏢 Industry Comparison</h3>
+                                        <p>{analysis.industry_benchmark}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* For Recruiters: "Interview Questions" / For Designers: "Growth Roadmap" */}
                     {(analysis.recommendations || []).length > 0 && (
                         <div className="recommendations-section card">
                             <div className="section-header-row">
-                                <h2>💡 Growth Roadmap</h2>
-                                <span className="section-badge">Personalized for you</span>
+                                <h2>{useAuthStore.getState().user?.role === 'recruiter' ? '🎯 Interview Questions to Ask' : '💡 Growth Roadmap'}</h2>
+                                <span className="section-badge">
+                                    {useAuthStore.getState().user?.role === 'recruiter' ? 'Based on portfolio gaps' : 'Personalized for you'}
+                                </span>
                             </div>
                             <div className="recommendations-list">
                                 {analysis.recommendations.map((rec, i) => (
                                     <div key={i} className="recommendation-item">
                                         <div className="rec-number">{i + 1}</div>
                                         <div className="rec-content">
-                                            <p>{rec}</p>
+                                            <p>{useAuthStore.getState().user?.role === 'recruiter'
+                                                ? `Ask about: ${rec}`
+                                                : rec
+                                            }</p>
                                         </div>
                                     </div>
                                 ))}
