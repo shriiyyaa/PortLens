@@ -113,7 +113,7 @@ async def analyze_portfolio(portfolio_id: str):
                         timeout=15.0  # 15s timeout for real AI analysis
                     )
                     analysis_result["ai_generated"] = True
-                    analysis_result["model_used"] = "gemini-1.5-flash"
+                    analysis_result["model_used"] = "gemini-2.0-flash-exp"
                     print(f"Gemini analysis succeeded for {portfolio_id}")
                 except asyncio.TimeoutError:
                     print(f"Gemini analysis timed out for {portfolio_id}. Falling back to enhanced engine.")
@@ -189,7 +189,7 @@ async def analyze_with_gemini(image_paths: List[str], source_url: Optional[str] 
     # This function assumes GEMINI_AVAILABLE is checked by caller
     try:
         # Initialize Gemini model with vision capabilities
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
         
         # Prepare content with images
         content_parts = []
