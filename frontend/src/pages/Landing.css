@@ -106,15 +106,18 @@
 
 .hero-buttons {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: var(--space-4);
     margin-bottom: var(--space-16);
 }
 
-/* Make hero role buttons smaller */
+/* Make hero role buttons smaller but keep them side-by-side */
 .hero-buttons .btn-xl {
     width: auto;
-    min-width: auto;
+    min-width: 180px;
     max-width: 220px;
     padding: var(--space-3) var(--space-6);
     font-size: var(--text-base);
