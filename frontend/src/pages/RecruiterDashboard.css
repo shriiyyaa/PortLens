@@ -395,6 +395,71 @@
     flex: 1;
 }
 
+/* Single URL Preview */
+.single-url-preview {
+    padding: 1rem;
+    background: rgba(0, 242, 255, 0.03);
+    border: 1px solid rgba(0, 242, 255, 0.15);
+    border-radius: 8px;
+}
+
+.single-url-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.single-url-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.single-url-input:focus {
+    outline: none;
+    border-color: var(--color-recruiter-primary);
+}
+
+/* Recruiter Preview Modal */
+.preview-modal.recruiter-preview {
+    max-width: 560px;
+    background: linear-gradient(135deg, #0a0f16 0%, #050810 100%);
+    border-color: rgba(0, 242, 255, 0.2);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 242, 255, 0.1);
+}
+
+.recruiter-preview .preview-score-item.overall .score-value {
+    color: var(--color-recruiter-primary);
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+}
+
+.recruiter-preview .preview-actions .btn-primary {
+    background: linear-gradient(135deg, #00f2ff, #0080ff);
+    border-color: var(--color-recruiter-primary);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+}
+
+.recruiter-preview .preview-actions .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.5);
+}
+
+.preview-seniority {
+    padding: 0.75rem 1rem;
+    background: rgba(0, 242, 255, 0.05);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.preview-seniority strong {
+    color: var(--color-recruiter-primary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .stats-row {

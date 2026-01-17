@@ -7,7 +7,7 @@ import './Dashboard.css'
 function Dashboard() {
     const navigate = useNavigate()
     const { user, isAuthenticated, isLoading: authLoading, logout, initialize } = useAuthStore()
-    const { portfolios, isLoading, fetchPortfolios, uploadFiles, submitUrl, startAnalysis, deletePortfolio } = usePortfolioStore()
+    const { portfolios, isLoading, fetchPortfolios, uploadFiles, submitUrl, startAnalysis, deletePortfolio, previewUrl, savePreview } = usePortfolioStore()
 
     const [showUploadModal, setShowUploadModal] = useState(false)
     const [uploadType, setUploadType] = useState('file')
@@ -15,6 +15,11 @@ function Dashboard() {
     const [titleInput, setTitleInput] = useState('')
     const [dragActive, setDragActive] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
+
+    // Preview state
+    const [showPreviewModal, setShowPreviewModal] = useState(false)
+    const [previewResult, setPreviewResult] = useState(null)
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
 
 
     useEffect(() => {
@@ -98,14 +103,47 @@ function Dashboard() {
         if (!urlInput.trim()) return
 
         try {
-            const portfolio = await submitUrl(urlInput, titleInput || 'Portfolio')
-            await startAnalysis(portfolio.id)
+            setIsAnalyzing(true)
             setShowUploadModal(false)
+            setShowPreviewModal(true)
+
+            // Preview analysis without saving
+            const preview = await previewUrl(urlInput, 'designer')
+            setPreviewResult({ ...preview, titleInput: titleInput || preview.title })
+            setIsAnalyzing(false)
+        } catch (err) {
+            console.error('Preview failed:', err)
+            setIsAnalyzing(false)
+            setShowPreviewModal(false)
+            setShowUploadModal(true)
+        }
+    }
+
+    const handleSavePreview = async () => {
+        if (!previewResult) return
+
+        try {
+            await savePreview({
+                url: previewResult.url,
+                title: previewResult.titleInput || previewResult.title,
+                source_type: previewResult.source_type,
+                submission_context: 'designer',
+                analysis: previewResult.analysis
+            })
+            setShowPreviewModal(false)
+            setPreviewResult(null)
             setUrlInput('')
             setTitleInput('')
         } catch (err) {
-            console.error('Submit failed:', err)
+            console.error('Save failed:', err)
         }
+    }
+
+    const handleDiscardPreview = () => {
+        setShowPreviewModal(false)
+        setPreviewResult(null)
+        setUrlInput('')
+        setTitleInput('')
     }
 
     const handleDelete = async (id) => {
@@ -358,6 +396,79 @@ function Dashboard() {
                         <p className="upload-hint">
                             Supports: Behance, Dribbble, personal sites, PDF, PNG, JPG, and more
                         </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Modal */}
+            {showPreviewModal && (
+                <div className="modal-overlay" onClick={handleDiscardPreview}>
+                    <div className="preview-modal" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={handleDiscardPreview}
+                            className="modal-close-btn"
+                        >
+                            ✕
+                        </button>
+
+                        {isAnalyzing ? (
+                            <div className="preview-loading">
+                                <div className="spinner"></div>
+                                <h2>Analyzing Portfolio...</h2>
+                                <p>AI is reviewing your work. This may take a few seconds.</p>
+                            </div>
+                        ) : previewResult ? (
+                            <div className="preview-content">
+                                <h2>📊 Analysis Preview</h2>
+                                <p className="preview-url">{previewResult.url}</p>
+
+                                <div className="preview-scores">
+                                    <div className="preview-score-item">
+                                        <span className="score-label">Visual</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.visual_score || 0)}</span>
+                                    </div>
+                                    <div className="preview-score-item">
+                                        <span className="score-label">UX</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.ux_score || 0)}</span>
+                                    </div>
+                                    <div className="preview-score-item overall">
+                                        <span className="score-label">Overall</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.overall_score || 0)}</span>
+                                    </div>
+                                </div>
+
+                                {previewResult.analysis.recruiter_verdict && (
+                                    <div className="preview-verdict">
+                                        <strong>AI Verdict:</strong> {previewResult.analysis.recruiter_verdict}
+                                    </div>
+                                )}
+
+                                <div className="preview-question">
+                                    <p>Would you like to save this analysis to your dashboard?</p>
+                                </div>
+
+                                <div className="preview-actions">
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleSavePreview}
+                                    >
+                                        ✓ Save to Dashboard
+                                    </button>
+                                    <button
+                                        className="btn btn-ghost"
+                                        onClick={handleDiscardPreview}
+                                    >
+                                        ✗ Discard
+                                    </button>
+                                </div>
+
+                                {previewResult.ai_generated && (
+                                    <p className="preview-model-badge">
+                                        Powered by {previewResult.model_used || 'AI'}
+                                    </p>
+                                )}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             )}

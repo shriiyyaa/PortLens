@@ -76,6 +76,38 @@ const usePortfolioStore = create((set, get) => ({
         }
     },
 
+    // Preview URL (analyze without saving)
+    previewUrl: async (url, submissionContext = 'designer') => {
+        set({ isLoading: true, error: null })
+        try {
+            const response = await portfolioApi.preview(url, submissionContext)
+            set({ isLoading: false })
+            return response.data  // Returns PreviewAnalysisResponse
+        } catch (error) {
+            set({ error: error.message, isLoading: false })
+            throw error
+        }
+    },
+
+    // Save previewed portfolio
+    savePreview: async (previewData) => {
+        set({ isLoading: true, error: null })
+        try {
+            const response = await portfolioApi.savePreview(previewData)
+            const newPortfolio = response.data
+
+            set((state) => ({
+                portfolios: [newPortfolio, ...state.portfolios],
+                isLoading: false,
+            }))
+
+            return newPortfolio
+        } catch (error) {
+            set({ error: error.message, isLoading: false })
+            throw error
+        }
+    },
+
     // Start analysis
     startAnalysis: async (portfolioId) => {
         try {

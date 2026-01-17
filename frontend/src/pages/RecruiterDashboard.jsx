@@ -7,7 +7,7 @@ import './RecruiterDashboard.css'
 function RecruiterDashboard() {
     const navigate = useNavigate()
     const { user, isAuthenticated, isLoading: authLoading, logout } = useAuthStore()
-    const { portfolios, isLoading, fetchPortfolios, submitUrl, startAnalysis } = usePortfolioStore()
+    const { portfolios, isLoading, fetchPortfolios, submitUrl, startAnalysis, previewUrl, savePreview } = usePortfolioStore()
 
     const [showBatchModal, setShowBatchModal] = useState(false)
     const [batchUrls, setBatchUrls] = useState('')
@@ -15,6 +15,12 @@ function RecruiterDashboard() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [sortBy, setSortBy] = useState('score')
     const [sortOrder, setSortOrder] = useState('desc')
+
+    // Single URL Preview state
+    const [singleUrlInput, setSingleUrlInput] = useState('')
+    const [showPreviewModal, setShowPreviewModal] = useState(false)
+    const [previewResult, setPreviewResult] = useState(null)
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -78,6 +84,54 @@ function RecruiterDashboard() {
         } finally {
             setIsSubmitting(false)
         }
+    }
+
+    // Single URL preview (analyze before saving)
+    const handleSingleUrlPreview = async () => {
+        if (!singleUrlInput.trim()) return
+
+        try {
+            setIsAnalyzing(true)
+            setShowBatchModal(false)
+            setShowPreviewModal(true)
+
+            const preview = await previewUrl(singleUrlInput, 'recruiter')
+            setPreviewResult({ ...preview, batchName: batchName || 'Candidate Portfolio' })
+            setIsAnalyzing(false)
+        } catch (err) {
+            console.error('Preview failed:', err)
+            setIsAnalyzing(false)
+            setShowPreviewModal(false)
+            setShowBatchModal(true)
+        }
+    }
+
+    const handleSavePreview = async () => {
+        if (!previewResult) return
+
+        try {
+            await savePreview({
+                url: previewResult.url,
+                title: previewResult.batchName || previewResult.title,
+                source_type: previewResult.source_type,
+                submission_context: 'recruiter',
+                candidate_name: null,
+                analysis: previewResult.analysis
+            })
+            setShowPreviewModal(false)
+            setPreviewResult(null)
+            setSingleUrlInput('')
+            setBatchName('')
+            fetchPortfolios('recruiter')
+        } catch (err) {
+            console.error('Save failed:', err)
+        }
+    }
+
+    const handleDiscardPreview = () => {
+        setShowPreviewModal(false)
+        setPreviewResult(null)
+        setSingleUrlInput('')
     }
 
     // Sort candidates
@@ -252,6 +306,31 @@ function RecruiterDashboard() {
                             />
                         </div>
 
+                        {/* Single URL with Preview */}
+                        <div className="batch-input-group single-url-preview">
+                            <label>Single Candidate (Preview First)</label>
+                            <div className="single-url-row">
+                                <input
+                                    type="url"
+                                    className="single-url-input"
+                                    placeholder="https://behance.net/candidate"
+                                    value={singleUrlInput}
+                                    onChange={e => setSingleUrlInput(e.target.value)}
+                                />
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={handleSingleUrlPreview}
+                                    disabled={!singleUrlInput.trim()}
+                                >
+                                    🔍 Preview
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="batch-divider">
+                            <span>or batch import</span>
+                        </div>
+
                         <div className="batch-input-group">
                             <label>Portfolio URLs (one per line)</label>
                             <textarea
@@ -261,12 +340,8 @@ https://dribbble.com/candidate2
 https://portfolio.com/candidate3"
                                 value={batchUrls}
                                 onChange={e => setBatchUrls(e.target.value)}
-                                rows={8}
+                                rows={6}
                             />
-                        </div>
-
-                        <div className="batch-divider">
-                            <span>or</span>
                         </div>
 
                         <div className="csv-upload-section">
@@ -278,9 +353,9 @@ https://portfolio.com/candidate3"
                                 hidden
                             />
                             <label htmlFor="csv-upload" className="csv-upload-btn">
-                                📄 Upload CSV/Excel File
+                                📄 Upload CSV/Excel
                             </label>
-                            <span className="csv-hint">File should have URLs in the first column</span>
+                            <span className="csv-hint">URLs in first column</span>
                         </div>
 
                         <div className="batch-actions">
@@ -302,6 +377,85 @@ https://portfolio.com/candidate3"
                                 )}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Modal */}
+            {showPreviewModal && (
+                <div className="modal-overlay" onClick={handleDiscardPreview}>
+                    <div className="preview-modal recruiter-preview" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={handleDiscardPreview}
+                            className="modal-close-btn"
+                        >
+                            ✕
+                        </button>
+
+                        {isAnalyzing ? (
+                            <div className="preview-loading">
+                                <div className="spinner"></div>
+                                <h2>Analyzing Candidate...</h2>
+                                <p>AI is evaluating this portfolio. This may take a few seconds.</p>
+                            </div>
+                        ) : previewResult ? (
+                            <div className="preview-content">
+                                <h2>📊 Candidate Analysis Preview</h2>
+                                <p className="preview-url">{previewResult.url}</p>
+
+                                <div className="preview-scores">
+                                    <div className="preview-score-item">
+                                        <span className="score-label">Visual</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.visual_score || 0)}</span>
+                                    </div>
+                                    <div className="preview-score-item">
+                                        <span className="score-label">UX</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.ux_score || 0)}</span>
+                                    </div>
+                                    <div className="preview-score-item overall">
+                                        <span className="score-label">Overall</span>
+                                        <span className="score-value">{Math.round(previewResult.analysis.overall_score || 0)}</span>
+                                    </div>
+                                </div>
+
+                                {previewResult.analysis.seniority_assessment && (
+                                    <div className="preview-seniority">
+                                        <strong>Seniority:</strong> {previewResult.analysis.seniority_assessment}
+                                    </div>
+                                )}
+
+                                {previewResult.analysis.recruiter_verdict && (
+                                    <div className="preview-verdict">
+                                        <strong>Verdict:</strong> {previewResult.analysis.recruiter_verdict}
+                                    </div>
+                                )}
+
+                                <div className="preview-question">
+                                    <p>Add this candidate to your rankings?</p>
+                                </div>
+
+                                <div className="preview-actions">
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleSavePreview}
+                                    >
+                                        ✓ Add to Rankings
+                                    </button>
+                                    <button
+                                        className="btn btn-ghost"
+                                        onClick={handleDiscardPreview}
+                                    >
+                                        ✗ Discard
+                                    </button>
+                                </div>
+
+                                {previewResult.ai_generated && (
+                                    <p className="preview-model-badge">
+                                        Powered by {previewResult.model_used || 'AI'}
+                                    </p>
+                                )}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             )}

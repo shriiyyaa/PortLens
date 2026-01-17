@@ -104,6 +104,17 @@ export const portfolios = {
             candidate_name: candidateName
         }),
 
+    // Preview analysis without saving
+    preview: (url, submissionContext = 'designer') =>
+        api.post('/portfolios/preview', {
+            url,
+            submission_context: submissionContext
+        }),
+
+    // Save a previewed portfolio
+    savePreview: (data) =>
+        api.post('/portfolios/save-preview', data),
+
     delete: (id) => api.delete(`/portfolios/${id}`),
 }
 

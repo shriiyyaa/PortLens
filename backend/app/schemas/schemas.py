@@ -80,6 +80,48 @@ class PortfolioURLSubmit(BaseModel):
     candidate_name: Optional[str] = None  # For recruiter submissions
 
 
+# --- Preview Schemas (analyze without saving) ---
+class PortfolioURLPreview(BaseModel):
+    """Request to preview/analyze a portfolio without saving."""
+    url: str
+    submission_context: Optional[str] = "designer"
+
+
+class PreviewAnalysisData(BaseModel):
+    """Analysis data returned from preview (not saved to DB yet)."""
+    visual_score: Optional[float] = None
+    ux_score: Optional[float] = None
+    communication_score: Optional[float] = None
+    overall_score: Optional[float] = None
+    hireability_score: Optional[float] = None
+    recruiter_verdict: Optional[str] = None
+    seniority_assessment: Optional[str] = None
+    industry_benchmark: Optional[str] = None
+    strengths: Optional[List[str]] = None
+    weaknesses: Optional[List[str]] = None
+    recommendations: Optional[List[str]] = None
+
+
+class PreviewAnalysisResponse(BaseModel):
+    """Response for preview analysis (not saved)."""
+    url: str
+    title: str
+    source_type: SourceType
+    analysis: PreviewAnalysisData
+    ai_generated: bool = False
+    model_used: Optional[str] = None
+
+
+class SavePreviewRequest(BaseModel):
+    """Request to save a previewed portfolio to the database."""
+    url: str
+    title: Optional[str] = "Portfolio"
+    source_type: SourceType
+    submission_context: Optional[str] = "designer"
+    candidate_name: Optional[str] = None
+    analysis: PreviewAnalysisData
+
+
 class AnalysisResponse(BaseModel):
     id: str
     visual_score: Optional[float] = None

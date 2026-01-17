@@ -182,6 +182,67 @@ async def analyze_portfolio(portfolio_id: str):
             raise e
 
 
+async def run_preview_analysis(source_url: str) -> Dict[str, Any]:
+    """
+    Run portfolio analysis without saving to the database.
+    Used for preview mode before user decides to save.
+    
+    Returns the analysis results directly.
+    """
+    images = []
+    
+    # Try to scrape images from URL
+    if source_url:
+        try:
+            import tempfile
+            import os
+            scrape_dir = tempfile.mkdtemp(prefix="portlens_preview_")
+            scraped_images = await capture_portfolio_screenshots(source_url, scrape_dir)
+            if scraped_images:
+                images = scraped_images
+        except Exception as scrape_err:
+            print(f"Preview scraping failed for {source_url}: {scrape_err}")
+    
+    analysis_result = None
+    
+    # Try Gemini Analysis
+    if GEMINI_AVAILABLE and images:
+        try:
+            print(f"Attempting Gemini preview analysis with {len(images)} images...")
+            analysis_result = await asyncio.wait_for(
+                analyze_with_gemini(images, source_url),
+                timeout=15.0
+            )
+            analysis_result["ai_generated"] = True
+            analysis_result["model_used"] = "gemini-1.5-pro"
+            print(f"Gemini preview analysis succeeded")
+        except asyncio.TimeoutError:
+            print(f"Gemini preview analysis timed out. Falling back to enhanced engine.")
+        except Exception as e:
+            print(f"Gemini preview analysis failed: {e}. Falling back to enhanced engine.")
+    
+    # Fallback to enhanced mock analysis
+    if not analysis_result:
+        print(f"Using enhanced mock analysis for preview")
+        analysis_result = await generate_enhanced_mock_analysis(
+            images if images else [],
+            source_url,
+            seed_id=source_url  # Use URL for deterministic seeding
+        )
+    
+    # Clean up temp directory
+    if images:
+        try:
+            import shutil
+            temp_dir = os.path.dirname(images[0]) if images else None
+            if temp_dir and temp_dir.startswith(tempfile.gettempdir()):
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+    
+    return analysis_result
+
+
 async def analyze_with_gemini(image_paths: List[str], source_url: Optional[str] = None) -> Dict[str, Any]:
     """
     Analyze portfolio images using Google Gemini Vision.

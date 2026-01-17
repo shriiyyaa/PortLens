@@ -8,14 +8,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db.database import get_db
-from app.models.models import Portfolio, PortfolioFile, SourceType, PortfolioStatus
+from app.models.models import Portfolio, PortfolioFile, Analysis, SourceType, PortfolioStatus
 from app.schemas.schemas import (
     PortfolioResponse,
     PortfolioListResponse,
     PortfolioURLSubmit,
+    PortfolioURLPreview,
+    PreviewAnalysisResponse,
+    PreviewAnalysisData,
+    SavePreviewRequest,
 )
 from app.core.security import get_current_user_id
 from app.core.config import settings
+from app.services.ai_service import run_preview_analysis
 
 router = APIRouter(prefix="/portfolios", tags=["Portfolios"])
 
@@ -189,3 +194,92 @@ async def delete_portfolio(
     
     await db.delete(portfolio)
     return None
+
+
+@router.post("/preview", response_model=PreviewAnalysisResponse)
+async def preview_portfolio(
+    data: PortfolioURLPreview,
+    user_id: str = Depends(get_current_user_id),
+):
+    """Run analysis on a URL without saving to database (preview mode)."""
+    # Determine source type
+    source_type = "url"
+    if "behance.net" in data.url.lower():
+        source_type = "behance"
+    
+    # Extract title from URL
+    title = data.url.split("/")[-1] or "Portfolio Preview"
+    if title.startswith("?") or not title:
+        title = "Portfolio Preview"
+    
+    # Run analysis without saving
+    analysis_result = await run_preview_analysis(data.url)
+    
+    return PreviewAnalysisResponse(
+        url=data.url,
+        title=title,
+        source_type=source_type,
+        analysis=PreviewAnalysisData(
+            visual_score=analysis_result.get("visual_score"),
+            ux_score=analysis_result.get("ux_score"),
+            communication_score=analysis_result.get("communication_score"),
+            overall_score=analysis_result.get("overall_score"),
+            hireability_score=analysis_result.get("hireability_score"),
+            recruiter_verdict=analysis_result.get("recruiter_verdict"),
+            seniority_assessment=analysis_result.get("seniority_assessment"),
+            industry_benchmark=analysis_result.get("industry_benchmark"),
+            strengths=analysis_result.get("strengths"),
+            weaknesses=analysis_result.get("weaknesses"),
+            recommendations=analysis_result.get("recommendations"),
+        ),
+        ai_generated=analysis_result.get("ai_generated", False),
+        model_used=analysis_result.get("model_used"),
+    )
+
+
+@router.post("/save-preview", response_model=PortfolioResponse, status_code=status.HTTP_201_CREATED)
+async def save_previewed_portfolio(
+    data: SavePreviewRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    """Save a previewed portfolio and its analysis to the database."""
+    # Create portfolio
+    portfolio = Portfolio(
+        user_id=user_id,
+        title=data.title,
+        source_type=SourceType(data.source_type),
+        source_url=data.url,
+        status=PortfolioStatus.COMPLETED,  # Already analyzed
+        submission_context=data.submission_context or "designer",
+        candidate_name=data.candidate_name,
+    )
+    db.add(portfolio)
+    await db.flush()
+    
+    # Create analysis record with the preview data
+    analysis = Analysis(
+        portfolio_id=portfolio.id,
+        visual_score=data.analysis.visual_score,
+        ux_score=data.analysis.ux_score,
+        communication_score=data.analysis.communication_score,
+        overall_score=data.analysis.overall_score,
+        hireability_score=data.analysis.hireability_score,
+        recruiter_verdict=data.analysis.recruiter_verdict,
+        seniority_assessment=data.analysis.seniority_assessment,
+        industry_benchmark=data.analysis.industry_benchmark,
+        strengths=data.analysis.strengths,
+        weaknesses=data.analysis.weaknesses,
+        recommendations=data.analysis.recommendations,
+    )
+    db.add(analysis)
+    await db.commit()
+    
+    # Re-fetch with analysis relationship
+    result = await db.execute(
+        select(Portfolio)
+        .where(Portfolio.id == portfolio.id)
+        .options(selectinload(Portfolio.analysis))
+    )
+    portfolio = result.scalar_one()
+    return PortfolioResponse.model_validate(portfolio)
