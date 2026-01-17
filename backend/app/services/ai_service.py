@@ -23,16 +23,22 @@ from app.services.scraping_service import capture_portfolio_screenshots
 
 
 # Initialize Gemini client
+GEMINI_AVAILABLE = False
+genai = None
+
 try:
     import google.generativeai as genai
+    print("Google GenAI library imported successfully")
     if settings.google_ai_api_key:
         genai.configure(api_key=settings.google_ai_api_key)
         GEMINI_AVAILABLE = True
+        print(f"Gemini configured with API key (key starts with: {settings.google_ai_api_key[:10]}...)")
     else:
-        GEMINI_AVAILABLE = False
-except ImportError:
-    GEMINI_AVAILABLE = False
-    genai = None
+        print("WARNING: GOOGLE_AI_API_KEY not set - Gemini disabled")
+except ImportError as e:
+    print(f"WARNING: Failed to import google.generativeai: {e}")
+except Exception as e:
+    print(f"WARNING: Error configuring Gemini: {e}")
 
 
 async def analyze_portfolio(portfolio_id: str):
@@ -94,20 +100,30 @@ async def analyze_portfolio(portfolio_id: str):
             # Analyze with AI
             analysis_result = None
             
+            # Log analysis decision factors
+            print(f"Analysis decision: GEMINI_AVAILABLE={GEMINI_AVAILABLE}, images_count={len(images)}")
+            
             # 1. Try Gemini Analysis with Strict Timeout
             # Re-enabled Gemini for TRUE AI analysis - fallback if fails
             if GEMINI_AVAILABLE and images:
                 try:
-                    print(f"Attempting Gemini analysis for {portfolio_id}...")
+                    print(f"Attempting Gemini analysis for {portfolio_id} with {len(images)} images...")
                     analysis_result = await asyncio.wait_for(
                         analyze_with_gemini(images, portfolio.source_url),
-                        timeout=10.0  # 10s timeout for real AI analysis
+                        timeout=15.0  # 15s timeout for real AI analysis
                     )
+                    analysis_result["ai_generated"] = True
+                    analysis_result["model_used"] = "gemini-1.5-flash"
                     print(f"Gemini analysis succeeded for {portfolio_id}")
                 except asyncio.TimeoutError:
                     print(f"Gemini analysis timed out for {portfolio_id}. Falling back to enhanced engine.")
                 except Exception as e:
                     print(f"Gemini analysis failed: {e}. Falling back to enhanced engine.")
+            else:
+                if not GEMINI_AVAILABLE:
+                    print(f"Gemini not available for {portfolio_id}")
+                if not images:
+                    print(f"No images to analyze for {portfolio_id}")
             
             # 2. Fallback to Enhanced Mock Analysis
             if not analysis_result:
